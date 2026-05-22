@@ -7,6 +7,7 @@ const prisma = require('../prisma'); // NEW
 const resend = new Resend(process.env.RESEND_API_KEY); // NEW
 
 async function sendOrderConfirmationEmail(orderId, userId) { // NEW
+  try {
     console.log(`[Email Debug] Attempting to send order confirmation for orderId: ${orderId}, userId: ${userId}`);
     const user = await prisma.user.findUnique({ where: { id: userId } }); // NEW
     if (!user) {
