@@ -44,49 +44,49 @@ const Home = () => {
 
   return (
     <div className="bg-[#F1F3F6] min-h-screen pb-8">
-      {/* HERO BANNER CAROUSEL */}
-      <div className="relative w-full h-[250px] bg-white group overflow-hidden mb-4 shadow-sm">
-        <div 
-          className="flex h-full transition-transform duration-500 ease-in-out"
-          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-        >
-          {slides.map(slide => (
-            <img 
-              key={slide.id} 
-              src={slide.image} 
-              alt={slide.alt} 
-              className="w-full h-full object-cover flex-shrink-0"
-            />
-          ))}
-        </div>
-        
-        {/* Carousel Controls */}
-        <button 
-          onClick={prevSlide}
-          className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white w-[40px] h-[80px] flex items-center justify-center rounded-r-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <ChevronLeft size={24} className="text-gray-800" />
-        </button>
-        <button 
-          onClick={nextSlide}
-          className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white w-[40px] h-[80px] flex items-center justify-center rounded-l-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <ChevronRight size={24} className="text-gray-800" />
-        </button>
-        
-        {/* Indicators */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-          {slides.map((_, idx) => (
-            <button 
-              key={idx}
-              onClick={() => setCurrentSlide(idx)}
-              className={`w-[8px] h-[8px] rounded-full transition-colors ${currentSlide === idx ? 'bg-white' : 'bg-white/50'}`}
-            />
-          ))}
-        </div>
-      </div>
-
       <div className="container mx-auto max-w-[1248px] px-2 flex flex-col gap-4">
+
+        {/* HERO BANNER CAROUSEL */}
+        <div className="relative w-full h-[250px] bg-white group overflow-hidden mt-4 shadow-sm rounded-sm">
+          <div 
+            className="flex h-full transition-transform duration-500 ease-in-out"
+            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+          >
+            {slides.map(slide => (
+              <img 
+                key={slide.id} 
+                src={slide.image} 
+                alt={slide.alt} 
+                className="w-full h-full object-cover flex-shrink-0"
+              />
+            ))}
+          </div>
+          
+          {/* Carousel Controls */}
+          <button 
+            onClick={prevSlide}
+            className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white w-[40px] h-[80px] flex items-center justify-center rounded-r-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <ChevronLeft size={24} className="text-gray-800" />
+          </button>
+          <button 
+            onClick={nextSlide}
+            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white w-[40px] h-[80px] flex items-center justify-center rounded-l-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <ChevronRight size={24} className="text-gray-800" />
+          </button>
+          
+          {/* Indicators */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+            {slides.map((_, idx) => (
+              <button 
+                key={idx}
+                onClick={() => setCurrentSlide(idx)}
+                className={`w-[8px] h-[8px] rounded-full transition-colors ${currentSlide === idx ? 'bg-white' : 'bg-white/50'}`}
+              />
+            ))}
+          </div>
+        </div>
         
         {/* AD TILES ROW */}
         <div className="grid grid-cols-3 gap-4">

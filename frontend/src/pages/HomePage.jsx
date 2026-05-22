@@ -43,7 +43,7 @@ const HeroBanner = () => {
   }, [])
 
   return (
-    <div className="relative w-full overflow-hidden bg-white" style={{ aspectRatio: '4 / 1', maxHeight: '400px' }}>
+    <div className="relative w-full overflow-hidden bg-white mt-4 mx-auto" style={{ aspectRatio: '4 / 1', maxHeight: '400px', maxWidth: '1224px' }}>
       {/* Slides */}
       {HERO_SLIDES.map((slide, i) => (
         <div
@@ -264,16 +264,16 @@ const HomePage = () => {
     <div style={{ backgroundColor: '#f1f2f4', minHeight: '100vh' }}>
       <style>{scrollbarStyles}</style>
 
-      {/* ── Master container: 1200px, centered, 12px side padding (matches Navbar) ── */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 12px' }}>
+      {/* ── Master container: 1248px matching Header, centered ── */}
+      <div style={{ maxWidth: '1248px', margin: '0 auto', padding: '0 4px' }}>
 
-        {/* Row 1: Hero Banner — negative margin to be edge-to-edge, like real Flipkart */}
-        <div style={{ margin: '0 -12px' }}>
+        {/* Row 1: Hero Banner — properly aligned with max-width matching content */}
+        <div>
           <HeroBanner />
         </div>
 
-        {/* ── Content area with 8px gap between white cards ── */}
-        <div className="flex flex-col" style={{ gap: '8px', paddingTop: '8px', paddingBottom: '24px' }}>
+        {/* ── Content area with gap between white cards ── */}
+        <div className="flex flex-col" style={{ gap: '8px', paddingTop: '16px', paddingBottom: '24px' }}>
 
           {loading ? (
             <>
