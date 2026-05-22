@@ -31,54 +31,54 @@ export const productApi = {
    * Get products with optional filters.
    * @param {Object} params - { category, subCategory, search, minPrice, maxPrice, sortBy, limit, offset }
    */
-  getProducts: (params = {}) => api.get('/products', { params }),
+  getProducts: (params = {}) => api.get('products', { params }),
 
   /** Get a single product by ID */
-  getProduct: (id) => api.get(`/products/${id}`),
+  getProduct: (id) => api.get(`products/${id}`),
 
   /** Get all categories */
-  getCategories: () => api.get('/products/categories'),
+  getCategories: () => api.get('products/categories'),
 }
 
 // ─── Wishlist API ───────────────────────────────────────────
 export const wishlistApi = {
-  getWishlist: () => api.get('/wishlist'),
-  addToWishlist: (productId) => api.post('/wishlist/add', { productId }),
-  removeFromWishlist: (productId) => api.delete(`/wishlist/remove/${productId}`),
-  clearWishlist: () => api.delete('/wishlist/clear'),
+  getWishlist: () => api.get('wishlist'),
+  addToWishlist: (productId) => api.post('wishlist/add', { productId }),
+  removeFromWishlist: (productId) => api.delete(`wishlist/remove/${productId}`),
+  clearWishlist: () => api.delete('wishlist/clear'),
 };
 
 // ─── Cart API ──────────────────────────────────────────────
 export const cartApi = {
   /** Get the current cart with computed totals */
-  getCart: () => api.get('/cart'),
+  getCart: () => api.get('cart'),
 
   /** Add a product to cart */
   addToCart: (productId, quantity = 1) =>
-    api.post('/cart/add', { productId, quantity }),
+    api.post('cart/add', { productId, quantity }),
 
   /** Update quantity of a cart item (send 0 to remove) */
   updateCartItem: (cartItemId, quantity) =>
-    api.put('/cart/update', { cartItemId, quantity }),
+    api.put('cart/update', { cartItemId, quantity }),
 
   /** Remove a specific item from cart */
-  removeFromCart: (cartItemId) => api.delete('/cart/remove', { data: { cartItemId } }),
+  removeFromCart: (cartItemId) => api.delete('cart/remove', { data: { cartItemId } }),
 
   /** Clear entire cart */
-  clearCart: () => api.delete('/cart'),
+  clearCart: () => api.delete('cart'),
 }
 
 // ─── Order API ─────────────────────────────────────────────
 export const orderApi = {
   /** Place an order (atomically clears cart) */
   placeOrder: (shippingAddress, paymentMethod = 'COD') =>
-    api.post('/orders', { shippingAddress, paymentMethod }),
+    api.post('orders', { shippingAddress, paymentMethod }),
 
   /** Get all orders for the current user */
-  getOrders: () => api.get('/orders'),
+  getOrders: () => api.get('orders'),
 
   /** Get a specific order by ID */
-  getOrder: (orderId) => api.get(`/orders/${orderId}`),
+  getOrder: (orderId) => api.get(`orders/${orderId}`),
 }
 
 export default api
