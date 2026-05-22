@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Download, MapPin, Phone, HelpCircle, Star, XCircle, RefreshCcw } from 'lucide-react';
 import StatusStepper from '../components/Orders/StatusStepper';
-import { getOrderById } from '../services/mockOrderService';
+import { orderApi } from '../services/api';
 
 const OrderDetail = () => {
   const { orderId } = useParams();
@@ -14,8 +14,8 @@ const OrderDetail = () => {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const data = await getOrderById(orderId);
-        setOrder(data);
+        const data = await orderApi.getOrder(orderId);
+        setOrder(data.order);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -28,9 +28,21 @@ const OrderDetail = () => {
   if (loading) return <div className="min-h-screen bg-[#f1f3f6] flex items-center justify-center">Loading order details...</div>;
   if (error || !order) return <div className="min-h-screen bg-[#f1f3f6] flex items-center justify-center text-red-500">Order not found</div>;
 
-  const item = order.items[0];
-  const isCancelled = order.status === 'cancelled';
-  const isDelivered = order.status === 'delivered';
+  const item = order.orderItems?.[0]?.product;
+  const status = (order.status || '').toLowerCase();
+  const isCancelled = status === 'cancelled';
+  const isDelivered = status === 'delivered';
+  
+  // Try to parse shipping address if it's a string, or use directly if it's an object
+  let address = order.shippingAddress;
+  if (typeof address === 'string') {
+    try {
+      address = JSON.parse(address);
+    } catch(e) {
+      // Fallback if not JSON
+      address = { name: 'Customer', addressLine1: address, city: '', state: '', pin: '', phone: '' };
+    }
+  }
 
   return (
     <div className="bg-[#f1f3f6] min-h-[calc(100vh-100px)] md:py-8">
@@ -55,7 +67,7 @@ const OrderDetail = () => {
           <span>&gt;</span>
           <Link to="/orders" className="hover:text-[#2874f0]">My Orders</Link>
           <span>&gt;</span>
-          <span className="text-[#2874f0] font-medium">{order.orderId}</span>
+          <span className="text-[#2874f0] font-medium">{order.id}</span>
         </div>
 
         {/* Delivery Address & Invoice Row */}
@@ -63,14 +75,14 @@ const OrderDetail = () => {
           
           <div className="flex-1 border-b md:border-b-0 md:border-r border-[#f0f0f0] pb-6 md:pb-0 md:pr-6">
             <h2 className="text-[16px] font-medium text-[#212121] mb-4">Delivery Address</h2>
-            <div className="text-[14px] text-[#212121] font-medium mb-1">{order.shippingAddress.name}</div>
+            <div className="text-[14px] text-[#212121] font-medium mb-1">{address.name}</div>
             <div className="text-[14px] text-[#212121] mb-2 leading-relaxed">
-              {order.shippingAddress.addressLine1}, {order.shippingAddress.city}, <br />
-              {order.shippingAddress.state} - <span className="font-medium">{order.shippingAddress.pin}</span>
+              {address.addressLine1}, {address.city}, <br />
+              {address.state} - <span className="font-medium">{address.pin}</span>
             </div>
             <div className="flex items-center gap-2 text-[14px] text-[#212121] font-medium mt-2">
               <Phone size={16} />
-              <span>{order.shippingAddress.phone}</span>
+              <span>{address.phone}</span>
             </div>
           </div>
 
@@ -79,7 +91,7 @@ const OrderDetail = () => {
               <h2 className="text-[16px] font-medium text-[#212121] mb-4">More Actions</h2>
               <div className="flex items-center gap-4 text-[14px]">
                 <div className="flex items-center gap-2 text-[#212121]">
-                  <span className="text-[#878787]">Order ID:</span> {order.orderId}
+                  <span className="text-[#878787]">Order ID:</span> {order.id}
                 </div>
               </div>
             </div>
@@ -102,31 +114,31 @@ const OrderDetail = () => {
           <div className="flex-1 p-6 border-b md:border-b-0 md:border-r border-[#f0f0f0]">
             <div className="flex gap-6 mb-8">
               <div className="w-[100px] h-[100px] shrink-0">
-                <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                <img src={item?.images?.[0] || item?.image || '/placeholder-product.png'} alt={item?.name} className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
                 <div className="text-[16px] text-[#212121] hover:text-[#2874f0] cursor-pointer mb-2">
-                  {item.name}
+                  {item?.name}
                 </div>
-                {item.variant && (
+                {item?.variant && (
                   <div className="text-[14px] text-[#878787] mb-2">{item.variant}</div>
                 )}
-                <div className="text-[14px] text-[#878787] mb-4">Seller: {item.seller}</div>
+                <div className="text-[14px] text-[#878787] mb-4">Seller: {item?.seller || 'Flipkart'}</div>
                 <div className="text-[20px] font-medium text-[#212121]">
-                  ₹{item.price.toLocaleString('en-IN')}
-                  {item.qty > 1 && <span className="text-[14px] text-[#878787] font-normal ml-2">x {item.qty}</span>}
+                  ₹{order.orderItems?.[0]?.priceAtTime?.toLocaleString('en-IN') || item?.price?.toLocaleString('en-IN')}
+                  {order.orderItems?.[0]?.quantity > 1 && <span className="text-[14px] text-[#878787] font-normal ml-2">x {order.orderItems[0].quantity}</span>}
                 </div>
               </div>
             </div>
 
             {/* Actions */}
             <div className="flex flex-wrap gap-4 mt-8 pt-6 border-t border-[#f0f0f0]">
-              {order.canCancel && !isCancelled && (
+              {!isCancelled && (
                 <button className="flex items-center gap-2 text-[#212121] font-medium text-[14px] hover:text-[#2874f0]">
                   <XCircle size={18} /> Cancel Order
                 </button>
               )}
-              {isDelivered && order.canReturn && (
+              {isDelivered && (
                 <button className="flex items-center gap-2 text-[#212121] font-medium text-[14px] hover:text-[#2874f0]">
                   <RefreshCcw size={18} /> Return / Exchange
                 </button>
@@ -147,8 +159,13 @@ const OrderDetail = () => {
             <h2 className="text-[16px] font-medium text-[#212121] mb-6">Order Status</h2>
             <div className="pl-2">
               <StatusStepper 
-                steps={order.tracking.steps} 
-                currentStatus={order.status} 
+                steps={order.tracking?.steps || [
+                  { label: 'Ordered', date: order.createdAt, completed: true },
+                  { label: 'Packed', date: null, completed: status === 'shipped' || status === 'delivered' },
+                  { label: 'Shipped', date: null, completed: status === 'shipped' || status === 'delivered' },
+                  { label: 'Delivery', date: null, completed: status === 'delivered' }
+                ]} 
+                currentStatus={status} 
                 isCancelled={isCancelled}
                 orientation="vertical" 
               />

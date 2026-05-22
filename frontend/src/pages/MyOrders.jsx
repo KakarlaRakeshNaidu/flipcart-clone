@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Search, ChevronLeft } from 'lucide-react';
 import OrderSidebar from '../components/Orders/OrderSidebar';
 import OrderCard from '../components/Orders/OrderCard';
-import { getOrders } from '../services/mockOrderService';
+import { orderApi } from '../services/api';
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -15,8 +15,9 @@ const MyOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const data = await getOrders();
-        setOrders(data);
+        const data = await orderApi.getOrders();
+        // The API returns { success: true, orders: [...] }
+        setOrders(data.orders || []);
       } catch (error) {
         console.error('Failed to fetch orders:', error);
       } finally {
@@ -28,13 +29,16 @@ const MyOrders = () => {
 
   // Filter orders
   const filteredOrders = orders.filter(order => {
-    const item = order.items[0];
+    const item = order.orderItems?.[0]?.product;
+    if (!item) return false;
+    
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const status = (order.status || '').toLowerCase();
     
     let matchesFilter = true;
-    if (filter === 'Delivered') matchesFilter = order.status === 'delivered';
-    else if (filter === 'Cancelled') matchesFilter = order.status === 'cancelled';
-    else if (filter === 'Open') matchesFilter = ['placed', 'confirmed', 'shipped', 'out_for_delivery'].includes(order.status);
+    if (filter === 'Delivered') matchesFilter = status === 'delivered';
+    else if (filter === 'Cancelled') matchesFilter = status === 'cancelled';
+    else if (filter === 'Open') matchesFilter = ['placed', 'confirmed', 'shipped', 'out_for_delivery'].includes(status);
     
     return matchesSearch && matchesFilter;
   });
@@ -105,7 +109,7 @@ const MyOrders = () => {
           ) : filteredOrders.length > 0 ? (
             <div className="flex flex-col gap-4">
               {filteredOrders.map(order => (
-                <OrderCard key={order.orderId} order={order} />
+                <OrderCard key={order.id} order={order} />
               ))}
             </div>
           ) : (
