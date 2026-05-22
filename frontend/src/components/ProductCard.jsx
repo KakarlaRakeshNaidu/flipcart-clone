@@ -1,8 +1,17 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useWishlist } from '../context/WishlistContext';
+import { useAuth } from '../context/AuthContext';
+import { Heart } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
-  const formatPrice = (n) => n.toLocaleString('en-IN');
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  
+  const wishlisted = isWishlisted(product.id);
+
+  const formatPrice = (n) => n ? n.toLocaleString('en-IN') : '0';
 
   const getPrimaryImage = () => {
     if (product.images && product.images.length > 0) return product.images[0];
@@ -10,24 +19,65 @@ const ProductCard = ({ product }) => {
     return 'https://via.placeholder.com/400x400?text=No+Image';
   };
 
+  const handleHeartClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    
+    toggleWishlist(product);
+  };
+
   return (
     <Link 
       to={`/product/${product.id}`} 
-      className="product-card flex flex-col bg-white border border-[#f0f0f0] rounded-sm hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] transition-shadow duration-200 group h-full"
+      className="product-card flex flex-col bg-white border border-[#f0f0f0] rounded-sm hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] transition-shadow duration-200 group h-full relative"
     >
-      <div className="relative w-full pt-[100%] overflow-hidden bg-white p-4">
+      <div className="relative w-full pt-[100%] overflow-visible bg-white p-4">
         <img 
           src={getPrimaryImage()} 
           alt={product.name}
           className="absolute top-4 left-4 right-4 bottom-4 w-[calc(100%-32px)] h-[calc(100%-32px)] object-contain group-hover:scale-105 transition-transform duration-300"
-          onError={(e) => { e.target.src = 'https://via.placeholder.com/400x400?text=No+Image' }}
+          onError={(e) => { 
+            e.currentTarget.onerror = null; 
+            e.currentTarget.src = 'https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/placeholder_fcebae.svg'; 
+          }}
         />
-        {/* Heart icon placeholder */}
+        
+        {/* Heart Icon Overlay */}
         <button 
-          className="absolute top-3 right-3 text-gray-300 hover:text-gray-500 z-10"
-          onClick={(e) => e.preventDefault()}
+          onClick={handleHeartClick}
+          style={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            zIndex: 10,
+            width: 32,
+            height: 32,
+            background: '#fff',
+            borderRadius: '50%',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+            cursor: 'pointer',
+          }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          {wishlisted ? (
+            <svg width="16" height="16" viewBox="0 0 24 24"
+              fill="#ff6161" stroke="#ff6161" strokeWidth="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="#878787" strokeWidth="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          )}
         </button>
       </div>
       

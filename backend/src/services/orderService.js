@@ -1,8 +1,7 @@
 // backend/src/services/orderService.js
 // Business logic for order placement — uses prisma.$transaction() for atomicity
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../lib/prisma');
 
 // ─── Default User Helper (same pattern as cartService) ────
 let _defaultUserId = null;

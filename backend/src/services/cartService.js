@@ -1,8 +1,7 @@
 // backend/src/services/cartService.js
 // Business logic for shopping cart operations
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../lib/prisma');
 
 // ─── Default User Helper ──────────────────────────────────
 // Per the assignment spec, we use a single default user.

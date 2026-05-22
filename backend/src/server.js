@@ -4,7 +4,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('./lib/prisma');
 
 // ─── Route Imports ────────────────────────────────────────
 const productRoutes = require('./routes/productRoutes');
@@ -17,7 +17,6 @@ const errorHandler = require('./middlewares/errorHandler');
 
 // ─── App Setup ────────────────────────────────────────────
 const app = express();
-const prisma = new PrismaClient();
 
 // ─── Global Middlewares ───────────────────────────────────
 app.use(cors({

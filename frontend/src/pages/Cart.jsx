@@ -9,7 +9,7 @@ const Cart = () => {
   const total = getCartTotal();
   const originalTotal = getCartOriginalTotal();
   const discount = originalTotal > total ? originalTotal - total : 0;
-  const formatPrice = (n) => n.toLocaleString('en-IN');
+  const formatPrice = (n) => n ? Number(n).toLocaleString('en-IN') : '0';
 
   return (
     <div className="bg-[#F1F3F6] min-h-screen py-8">
@@ -27,7 +27,7 @@ const Cart = () => {
                 const itemPrice = item.selectedVariant && item.variants
                   ? item.variants.find(v => v.storage === item.selectedVariant)?.price || item.price
                   : item.price;
-                const itemDiscountPct = Math.round(((item.originalPrice - itemPrice) / item.originalPrice) * 100);
+                const itemDiscountPct = item.originalPrice ? Math.round(((item.originalPrice - itemPrice) / item.originalPrice) * 100) : 0;
 
                 return (
                   <div key={`${item.id}-${item.selectedVariant}-${item.selectedColor}-${index}`} className="flex flex-col p-6 border-b border-[#f0f0f0]">
@@ -48,9 +48,13 @@ const Cart = () => {
                         </div>
                         
                         <div className="flex items-center gap-3 mb-6">
-                          <span className="text-[14px] text-[#878787] line-through">₹{formatPrice(item.originalPrice)}</span>
+                          {item.originalPrice && (
+                            <span className="text-[14px] text-[#878787] line-through">₹{formatPrice(item.originalPrice)}</span>
+                          )}
                           <span className="text-[18px] font-medium text-[#212121]">₹{formatPrice(itemPrice)}</span>
-                          <span className="text-[14px] font-medium text-[#388E3C]">{itemDiscountPct}% Off</span>
+                          {itemDiscountPct > 0 && (
+                            <span className="text-[14px] font-medium text-[#388E3C]">{itemDiscountPct}% Off</span>
+                          )}
                         </div>
 
                         <div className="flex items-center gap-6 mt-auto">

@@ -1,9 +1,8 @@
 // backend/src/controllers/authController.js
-const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
 const { Resend } = require('resend');
+const prisma = require('../lib/prisma');
 
-const prisma = new PrismaClient();
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const generateOTP = () => {

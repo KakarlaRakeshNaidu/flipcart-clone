@@ -10,7 +10,8 @@
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:seed": "node prisma/seed.js",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "postinstall": "prisma generate --no-engine"
   },
   "keywords": [
     "flipkart",
@@ -21,7 +22,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@prisma/client": "^6.15.0",
+    "@prisma/client": "^7.8.0",
+    "@prisma/extension-accelerate": "^3.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
@@ -31,6 +33,6 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.2",
-    "prisma": "^6.15.0"
+    "prisma": "^6.19.3"
   }
 }

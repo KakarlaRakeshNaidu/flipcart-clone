@@ -1,8 +1,7 @@
 // backend/src/services/productService.js
 // Business logic for product operations
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../lib/prisma');
 
 class ProductService {
   /**

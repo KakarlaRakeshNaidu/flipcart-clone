@@ -4,9 +4,11 @@ import { Search, ShoppingCart, ChevronDown, User, MapPin, Heart, UserCircle, Plu
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductContext';
 import { useAuth } from '../context/AuthContext';
+import { useWishlist } from '../context/WishlistContext';
 
 const Header = () => {
   const { getCartCount } = useCart();
+  const { getWishlistCount } = useWishlist();
   const { searchQuery, setSearchQuery, selectedCategory, setSelectedCategory } = useProducts();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -114,8 +116,30 @@ const Header = () => {
                     <Package size={18} className="text-gray-500" />
                     <span className="text-[14px]">Orders</span>
                  </Link>
-                 <Link to="/" className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 transition-colors text-black">
-                    <Heart size={18} className="text-gray-500" />
+                 <Link to="/wishlist" className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 transition-colors text-black">
+                    <div style={{ position: 'relative', display: 'inline-flex' }}>
+                      <Heart size={20} className="text-gray-500" />
+                      {getWishlistCount() > 0 && (
+                        <span style={{
+                          position: 'absolute',
+                          top: -6,
+                          right: -6,
+                          background: '#ff6161',
+                          color: '#fff',
+                          borderRadius: '50%',
+                          width: 16,
+                          height: 16,
+                          fontSize: 10,
+                          fontWeight: 700,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          lineHeight: 1,
+                        }}>
+                          {getWishlistCount() > 9 ? '9+' : getWishlistCount()}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-[14px]">Wishlist</span>
                  </Link>
                  <Link to="/" className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 transition-colors text-black">

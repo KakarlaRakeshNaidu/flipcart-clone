@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { User, Package, Heart, MapPin, CreditCard, Bell, LogOut, ChevronRight, Settings, Gift, Smartphone, Tag, Star, ShoppingBag } from 'lucide-react';
+import { useWishlist } from '../../context/WishlistContext';
+import { User, Heart, MapPin, CreditCard, Bell, LogOut, ChevronRight, Settings, Gift, Smartphone, Tag, Star, ShoppingBag } from 'lucide-react';
 
 const OrderSidebar = () => {
   const { user, logout } = useAuth();
+  const { getWishlistCount } = useWishlist();
   const location = useLocation();
 
   const menuItems = [
@@ -21,7 +23,7 @@ const OrderSidebar = () => {
     { title: 'My Coupons', icon: <Tag size={16} />, path: '/coupons' },
     { title: 'My Reviews & Ratings', icon: <Star size={16} />, path: '/reviews' },
     { title: 'All Notifications', icon: <Bell size={16} />, path: '/notifications' },
-    { title: 'My Wishlist', icon: <Heart size={16} />, path: '/wishlist' },
+    { title: 'My Wishlist', icon: <Heart size={16} />, path: '/wishlist', badge: getWishlistCount() },
   ];
 
   return (
@@ -58,21 +60,23 @@ const OrderSidebar = () => {
             <Link
               key={index}
               to={item.path || '#'}
-              className={`flex items-center justify-between px-5 py-3 hover:bg-[#f9f9f9] transition-colors border-b border-[#f0f0f0] last:border-0 ${
-                isActive ? 'bg-[#f5faff]' : ''
-              }`}
+              className={`flex items-center px-5 py-3 hover:bg-[#f9f9f9] transition-colors border-b border-[#f0f0f0] last:border-0`}
             >
-              <div className="flex items-center gap-[10px]">
-                {item.icon && (
-                  <span className={isActive ? 'text-[#2874f0]' : 'text-[#878787]'}>
-                    {item.icon}
-                  </span>
-                )}
-                <span className={`text-[14px] ${isActive ? 'text-[#2874f0] font-medium' : 'text-[#212121] hover:text-[#2874f0]'}`}>
-                  {item.title}
+              {item.icon && (
+                <span className={`mr-[10px] ${isActive ? 'text-[#2874f0]' : 'text-[#878787]'}`}>
+                  {item.icon}
                 </span>
-              </div>
-              {isActive && <ChevronRight size={16} className="text-[#2874f0]" />}
+              )}
+              <span className={`text-[14px] ${isActive ? 'text-[#2874f0] font-medium' : 'text-[#212121] hover:text-[#2874f0]'}`}>
+                {item.title}
+              </span>
+              {item.badge > 0 && (
+                <span className="text-[12px] text-[#878787] ml-2">
+                  ({item.badge})
+                </span>
+              )}
+              <div className="flex-1" />
+              {isActive && <span style={{ color: '#2874f0', fontSize: 16, marginLeft: 4 }}>›</span>}
             </Link>
           );
         })}
