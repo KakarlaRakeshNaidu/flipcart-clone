@@ -5,7 +5,10 @@ let _defaultUserId = null;
 
 async function getDefaultUserId() {
   if (_defaultUserId) return _defaultUserId;
-  const user = await prisma.user.findFirst();
+  // Use orderBy to ensure we always get the EXACT same default user across serverless lambdas
+  const user = await prisma.user.findFirst({
+    orderBy: { createdAt: 'asc' }
+  });
   if (!user) {
     throw new Error('No users found. Please run the seed script: npm run db:seed');
   }
