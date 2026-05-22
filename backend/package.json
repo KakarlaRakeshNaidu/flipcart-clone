@@ -11,7 +11,7 @@
     "db:generate": "prisma generate",
     "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate --no-engine"
+    "postinstall": "prisma generate"
   },
   "keywords": [
     "flipkart",

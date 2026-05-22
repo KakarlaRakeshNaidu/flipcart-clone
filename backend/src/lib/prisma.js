@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client/edge');
+const { PrismaClient } = require('@prisma/client');
 const { withAccelerate } = require('@prisma/extension-accelerate');
 
 const globalForPrisma = globalThis;
