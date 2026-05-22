@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { orderApi } from '../services/api';
 
 const Checkout = () => {
-  const { cartItems, getCartTotal, getCartCount, clearCart } = useCart();
+  const { cartItems, getCartTotal, getCartCount, fetchCart, cartSummary } = useCart();
   const navigate = useNavigate();
   
   const [currentStep, setCurrentStep] = useState(2);
@@ -18,7 +19,9 @@ const Checkout = () => {
     state: ''
   });
   const [savedAddress, setSavedAddress] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [paymentMethod, setPaymentMethod] = useState('COD');
+  const [placingOrder, setPlacingOrder] = useState(false);
+  const [orderError, setOrderError] = useState(null);
 
   if (cartItems.length === 0) {
     return (
@@ -38,10 +41,41 @@ const Checkout = () => {
     setCurrentStep(4);
   };
 
-  const handlePlaceOrder = () => {
-    const orderId = 'OD' + Math.floor(Math.random() * 1000000000000000);
-    clearCart();
-    navigate('/confirmation', { state: { orderId } });
+  const handlePlaceOrder = async () => {
+    if (!savedAddress) return;
+
+    setPlacingOrder(true);
+    setOrderError(null);
+
+    try {
+      // Format address as a string for the backend
+      const shippingAddress = JSON.stringify({
+        name: savedAddress.name,
+        phone: savedAddress.phone,
+        addressLine1: `${savedAddress.address}, ${savedAddress.locality}`,
+        city: savedAddress.city,
+        state: savedAddress.state,
+        pin: savedAddress.pincode,
+      });
+
+      const result = await orderApi.placeOrder(shippingAddress, paymentMethod);
+      
+      // Refresh cart (backend has already cleared it)
+      await fetchCart();
+
+      // Navigate to confirmation with the real order ID
+      navigate('/confirmation', {
+        state: {
+          orderId: result.order?.id || result.orderId,
+          totalAmount: result.order?.totalAmount,
+        }
+      });
+    } catch (error) {
+      console.error('Failed to place order:', error);
+      setOrderError(error.message || 'Failed to place order. Please try again.');
+    } finally {
+      setPlacingOrder(false);
+    }
   };
 
   const total = getCartTotal();
@@ -220,24 +254,36 @@ const Checkout = () => {
             
             {currentStep === 3 && (
               <div>
-                {cartItems.map((item, idx) => (
-                  <div key={idx} className="p-6 flex gap-6 border-b border-[#f0f0f0]">
-                    <div className="w-[100px] h-[100px] flex-shrink-0 flex items-center justify-center">
-                      <img src={item.image} alt={item.name} className="max-w-full max-h-full object-contain" />
-                    </div>
-                    <div className="flex flex-col gap-2 flex-grow">
-                      <div className="text-[16px] text-[#212121]">{item.name}</div>
-                      <div className="text-[14px] text-[#878787]">Quantity: {item.quantity}</div>
-                      <div className="flex items-center gap-3 mt-2">
-                        <span className="text-[#878787] line-through text-[14px]">₹{formatPrice(item.originalPrice)}</span>
-                        <span className="text-[#212121] font-medium text-[18px]">₹{formatPrice(item.price)}</span>
-                        <span className="text-[#388E3C] font-medium text-[14px]">
-                          {item.originalPrice ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100) : 0}% Off
-                        </span>
+                {cartItems.map((item, idx) => {
+                  const product = item.product || {};
+                  const imageUrl = product.imageUrl || product.images?.[0] || product.image || 'https://via.placeholder.com/400x400?text=No+Image';
+                  const itemPrice = product.price || 0;
+                  const itemMrp = product.mrp || product.originalPrice || itemPrice;
+                  const discountPct = itemMrp > itemPrice ? Math.round(((itemMrp - itemPrice) / itemMrp) * 100) : 0;
+
+                  return (
+                    <div key={item.id || idx} className="p-6 flex gap-6 border-b border-[#f0f0f0]">
+                      <div className="w-[100px] h-[100px] flex-shrink-0 flex items-center justify-center">
+                        <img src={imageUrl} alt={product.name} className="max-w-full max-h-full object-contain" />
+                      </div>
+                      <div className="flex flex-col gap-2 flex-grow">
+                        <div className="text-[16px] text-[#212121]">{product.name}</div>
+                        <div className="text-[14px] text-[#878787]">Quantity: {item.quantity}</div>
+                        <div className="flex items-center gap-3 mt-2">
+                          {itemMrp > itemPrice && (
+                            <span className="text-[#878787] line-through text-[14px]">₹{formatPrice(itemMrp)}</span>
+                          )}
+                          <span className="text-[#212121] font-medium text-[18px]">₹{formatPrice(itemPrice)}</span>
+                          {discountPct > 0 && (
+                            <span className="text-[#388E3C] font-medium text-[14px]">
+                              {discountPct}% Off
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 
                 <div className="p-4 px-6 border-t border-[#f0f0f0] flex justify-between items-center bg-white shadow-[0_-2px_10px_0_rgba(0,0,0,0.05)]">
                   <div>
@@ -276,20 +322,39 @@ const Checkout = () => {
                     <input 
                       type="radio" 
                       name="payment" 
-                      value="cod" 
-                      checked={paymentMethod === 'cod'}
-                      onChange={() => setPaymentMethod('cod')}
+                      value="COD" 
+                      checked={paymentMethod === 'COD'}
+                      onChange={() => setPaymentMethod('COD')}
                       className="w-4 h-4 text-[#2874F0] focus:ring-[#2874F0]"
                     />
                     <span className="text-[16px]">Cash on Delivery</span>
                   </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="payment" 
+                      value="UPI" 
+                      checked={paymentMethod === 'UPI'}
+                      onChange={() => setPaymentMethod('UPI')}
+                      className="w-4 h-4 text-[#2874F0] focus:ring-[#2874F0]"
+                    />
+                    <span className="text-[16px]">UPI</span>
+                  </label>
+
+                  {orderError && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-sm text-[14px]">
+                      {orderError}
+                    </div>
+                  )}
                   
                   <div className="mt-6 flex items-center gap-4">
                      <button 
                       onClick={handlePlaceOrder}
-                      className="bg-[#fb641b] text-white font-medium text-[16px] px-12 py-3 rounded-sm shadow-sm hover:shadow-md transition-shadow"
+                      disabled={placingOrder}
+                      className="bg-[#fb641b] text-white font-medium text-[16px] px-12 py-3 rounded-sm shadow-sm hover:shadow-md transition-shadow disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
                     >
-                      PLACE ORDER
+                      {placingOrder && <Loader2 size={18} className="animate-spin" />}
+                      {placingOrder ? 'PLACING ORDER...' : 'PLACE ORDER'}
                     </button>
                     <span className="text-[14px] text-[#878787]">You will pay ₹{formatPrice(total)} upon delivery</span>
                   </div>

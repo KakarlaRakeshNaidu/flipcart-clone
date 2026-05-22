@@ -10,7 +10,7 @@ const ProductDetail = () => {
   const { allProducts } = useProducts();
   const { addToCart } = useCart();
 
-  const product = allProducts.find(p => p.id === parseInt(id));
+  const product = allProducts.find(p => String(p.id) === String(id));
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(null);
@@ -18,6 +18,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [pincode, setPincode] = useState('');
   const [deliveryCheck, setDeliveryCheck] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   useEffect(() => {
     if (product) {
@@ -36,21 +37,35 @@ const ProductDetail = () => {
     return <div className="container mx-auto p-10 text-center text-[18px]">Product not found</div>;
   }
 
-  const images = product.images || [product.image];
+  const images = product.images || (product.image ? [product.image] : (product.imageUrl ? [product.imageUrl] : []));
   const formatPrice = (n) => n ? n.toLocaleString('en-IN') : '';
   
   const currentPrice = selectedVariant && product.variants 
     ? product.variants.find(v => v.storage === selectedVariant)?.price || product.price 
     : product.price;
 
-  const handleAddToCart = () => {
-    addToCart(product, quantity, selectedVariant, selectedColor);
-    navigate('/cart');
+  const handleAddToCart = async () => {
+    setAddingToCart(true);
+    try {
+      await addToCart(product.id, quantity);
+      navigate('/cart');
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
-  const handleBuyNow = () => {
-    addToCart(product, quantity, selectedVariant, selectedColor);
-    navigate('/checkout');
+  const handleBuyNow = async () => {
+    setAddingToCart(true);
+    try {
+      await addToCart(product.id, quantity);
+      navigate('/checkout');
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
   const handleDeliveryCheck = () => {
@@ -130,14 +145,14 @@ const ProductDetail = () => {
                 {product.rating} <Star size={10} fill="white" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
               </div>
               <span className="text-[#878787] text-[14px] font-medium">
-                {product.reviews.toLocaleString()} Ratings & Reviews
+                {(product.reviews || product.reviewCount || 0).toLocaleString()} Ratings & Reviews
               </span>
             </div>
 
             <div className="flex items-end gap-3 mb-4">
               <span className="text-[28px] font-medium text-[#212121]">₹{formatPrice(currentPrice)}</span>
-              {product.originalPrice && (
-                <span className="text-[16px] text-[#878787] line-through mb-1">₹{formatPrice(product.originalPrice)}</span>
+              {(product.originalPrice || product.mrp) && (product.originalPrice || product.mrp) > currentPrice && (
+                <span className="text-[16px] text-[#878787] line-through mb-1">₹{formatPrice(product.originalPrice || product.mrp)}</span>
               )}
               {product.discount && (
                 <span className="text-[16px] text-[#388E3C] font-medium mb-1">{product.discount}% off</span>

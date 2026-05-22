@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from './ToastContext';
-import { wishlistApi } from '../services/api';
+import { wishlistApi, cartApi } from '../services/api';
 import { useAuth } from './AuthContext';
-import { useCart } from './CartContext';
 
 const WishlistContext = createContext();
 
@@ -10,7 +9,6 @@ export const WishlistProvider = ({ children }) => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const { showToast } = useToast();
   const { user } = useAuth();
-  const { addToCart } = useCart();
 
   // Fetch wishlist from backend when user changes
   useEffect(() => {
@@ -21,9 +19,9 @@ export const WishlistProvider = ({ children }) => {
       }
       try {
         const response = await wishlistApi.getWishlist();
-        if (response.data.success) {
-          setWishlistItems(response.data.wishlist);
-        }
+        // The interceptor already unwraps .data, so response IS the data
+        const items = response.wishlist || response.data?.wishlist || [];
+        setWishlistItems(items);
       } catch (error) {
         console.error('Failed to fetch wishlist', error);
       }
@@ -92,11 +90,15 @@ export const WishlistProvider = ({ children }) => {
       showToast('Please login first', 'error');
       return;
     }
-    const item = wishlistItems.find(i => String(i.id) === String(productId));
-    if (item) {
-      await addToCart(item);
-      removeFromWishlist(productId);
+    try {
+      // Add to cart via backend API
+      await cartApi.addToCart(String(productId), 1);
+      // Remove from wishlist
+      await removeFromWishlist(productId);
       showToast('Item moved to cart', 'success');
+    } catch (error) {
+      console.error('Failed to move to cart:', error);
+      showToast('Failed to move to cart', 'error');
     }
   };
 

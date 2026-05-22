@@ -16,6 +16,7 @@ const ProductCard = ({ product }) => {
   const getPrimaryImage = () => {
     if (product.images && product.images.length > 0) return product.images[0];
     if (product.image) return product.image;
+    if (product.imageUrl) return product.imageUrl;
     return 'https://via.placeholder.com/400x400?text=No+Image';
   };
 
@@ -96,7 +97,7 @@ const ProductCard = ({ product }) => {
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           </div>
           <span className="text-[#878787] text-[12px] font-medium">
-            ({formatPrice(product.reviews)})
+            ({formatPrice(product.reviews || product.reviewCount || 0)})
           </span>
         </div>
         
@@ -105,9 +106,9 @@ const ProductCard = ({ product }) => {
             <span className="price-current text-[16px] font-bold text-[#212121]">
               ₹{formatPrice(product.price)}
             </span>
-            {product.originalPrice && (
+            {(product.originalPrice || product.mrp) && (
               <span className="price-original text-[13px] text-[#878787] line-through">
-                ₹{formatPrice(product.originalPrice)}
+                ₹{formatPrice(product.originalPrice || product.mrp)}
               </span>
             )}
             {product.discount && (

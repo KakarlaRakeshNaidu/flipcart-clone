@@ -1,80 +1,83 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { cartApi } from '../services/api';
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState(() => {
-    try {
-      const item = window.localStorage.getItem('flipkart_cart');
-      return item ? JSON.parse(item) : [];
-    } catch (error) {
-      console.error(error);
-      return [];
-    }
+  const [cartItems, setCartItems] = useState([]);
+  const [cartSummary, setCartSummary] = useState({
+    subtotal: 0, mrpTotal: 0, discount: 0, deliveryCharge: 0, total: 0, itemCount: 0,
   });
+  const [loading, setLoading] = useState(true);
+
+  // Fetch cart from backend
+  const fetchCart = useCallback(async () => {
+    try {
+      const data = await cartApi.getCart();
+      setCartItems(data.items || []);
+      setCartSummary({
+        subtotal: data.subtotal || 0,
+        mrpTotal: data.mrpTotal || 0,
+        discount: data.discount || 0,
+        deliveryCharge: data.deliveryCharge || 0,
+        total: data.total || 0,
+        itemCount: data.itemCount || 0,
+      });
+    } catch (error) {
+      console.error('Failed to fetch cart:', error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
+
+  const addToCart = async (productId, quantity = 1) => {
     try {
-      window.localStorage.setItem('flipkart_cart', JSON.stringify(cartItems));
+      // If productId is an object (a product), extract the id
+      const id = typeof productId === 'object' ? productId.id : productId;
+      await cartApi.addToCart(String(id), quantity);
+      await fetchCart();
     } catch (error) {
-      console.error(error);
+      console.error('Failed to add to cart:', error.message);
+      throw error;
     }
-  }, [cartItems]);
-
-  const addToCart = (product, quantity = 1, variant = null, color = null) => {
-    setCartItems(prev => {
-      // Find matching item (same id, variant, color)
-      const existing = prev.find(item => 
-        item.id === product.id && 
-        item.selectedVariant === variant && 
-        item.selectedColor === color
-      );
-      
-      if (existing) {
-        return prev.map(item => 
-          item === existing ? { ...item, quantity: item.quantity + quantity } : item
-        );
-      }
-      return [...prev, { ...product, quantity, selectedVariant: variant, selectedColor: color }];
-    });
   };
 
-  const updateQuantity = (id, newQuantity, variant = null, color = null) => {
+  const updateQuantity = async (cartItemId, newQuantity) => {
     if (newQuantity < 1) return;
-    setCartItems(prev => prev.map(item => 
-      (item.id === id && item.selectedVariant === variant && item.selectedColor === color)
-        ? { ...item, quantity: newQuantity } 
-        : item
-    ));
+    try {
+      await cartApi.updateCartItem(cartItemId, newQuantity);
+      await fetchCart();
+    } catch (error) {
+      console.error('Failed to update cart item:', error.message);
+    }
   };
 
-  const removeFromCart = (id, variant = null, color = null) => {
-    setCartItems(prev => prev.filter(item => 
-      !(item.id === id && item.selectedVariant === variant && item.selectedColor === color)
-    ));
+  const removeFromCart = async (cartItemId) => {
+    try {
+      await cartApi.removeFromCart(cartItemId);
+      await fetchCart();
+    } catch (error) {
+      console.error('Failed to remove from cart:', error.message);
+    }
   };
 
-  const clearCart = () => {
-    setCartItems([]);
+  const clearCart = async () => {
+    try {
+      await cartApi.clearCart();
+      setCartItems([]);
+      setCartSummary({ subtotal: 0, mrpTotal: 0, discount: 0, deliveryCharge: 0, total: 0, itemCount: 0 });
+    } catch (error) {
+      console.error('Failed to clear cart:', error.message);
+    }
   };
 
-  const getCartTotal = () => {
-    return cartItems.reduce((total, item) => {
-      // Handle variant price if it exists
-      const itemPrice = item.selectedVariant ? 
-        (item.variants?.find(v => v.storage === item.selectedVariant)?.price || item.price) : 
-        item.price;
-      return total + (itemPrice * item.quantity);
-    }, 0);
-  };
-  
-  const getCartOriginalTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.originalPrice * item.quantity), 0);
-  };
-
-  const getCartCount = () => {
-    return cartItems.reduce((count, item) => count + item.quantity, 0);
-  };
+  const getCartTotal = () => cartSummary.total;
+  const getCartOriginalTotal = () => cartSummary.mrpTotal;
+  const getCartCount = () => cartSummary.itemCount;
 
   return (
     <CartContext.Provider value={{
@@ -85,7 +88,10 @@ export const CartProvider = ({ children }) => {
       clearCart,
       getCartTotal,
       getCartOriginalTotal,
-      getCartCount
+      getCartCount,
+      fetchCart,
+      cartSummary,
+      loading,
     }}>
       {children}
     </CartContext.Provider>
@@ -93,4 +99,3 @@ export const CartProvider = ({ children }) => {
 };
 
 export const useCart = () => useContext(CartContext);
-

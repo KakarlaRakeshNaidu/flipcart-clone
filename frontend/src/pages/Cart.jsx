@@ -3,13 +3,22 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
 const Cart = () => {
-  const { cartItems, updateQuantity, removeFromCart, getCartTotal, getCartOriginalTotal, getCartCount } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, getCartTotal, getCartOriginalTotal, getCartCount, cartSummary, loading } = useCart();
   const navigate = useNavigate();
 
   const total = getCartTotal();
   const originalTotal = getCartOriginalTotal();
-  const discount = originalTotal > total ? originalTotal - total : 0;
+  const discount = cartSummary.discount || (originalTotal > total ? originalTotal - total : 0);
+  const deliveryCharge = cartSummary.deliveryCharge ?? 0;
   const formatPrice = (n) => n ? Number(n).toLocaleString('en-IN') : '0';
+
+  if (loading) {
+    return (
+      <div className="bg-[#F1F3F6] min-h-screen py-8 flex items-center justify-center">
+        <div className="text-[18px] text-[#878787]">Loading your cart...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#F1F3F6] min-h-screen py-8">
@@ -24,32 +33,31 @@ const Cart = () => {
           {cartItems.length > 0 ? (
             <div className="bg-white shadow-sm flex flex-col">
               {cartItems.map((item, index) => {
-                const itemPrice = item.selectedVariant && item.variants
-                  ? item.variants.find(v => v.storage === item.selectedVariant)?.price || item.price
-                  : item.price;
-                const itemDiscountPct = item.originalPrice ? Math.round(((item.originalPrice - itemPrice) / item.originalPrice) * 100) : 0;
+                const product = item.product || {};
+                const itemPrice = product.price || 0;
+                const itemMrp = product.mrp || product.originalPrice || itemPrice;
+                const itemDiscountPct = itemMrp > itemPrice ? Math.round(((itemMrp - itemPrice) / itemMrp) * 100) : 0;
+                const imageUrl = product.imageUrl || product.images?.[0] || product.image || 'https://via.placeholder.com/400x400?text=No+Image';
 
                 return (
-                  <div key={`${item.id}-${item.selectedVariant}-${item.selectedColor}-${index}`} className="flex flex-col p-6 border-b border-[#f0f0f0]">
+                  <div key={item.id || index} className="flex flex-col p-6 border-b border-[#f0f0f0]">
                     <div className="flex gap-6">
                       <div className="w-[112px] h-[112px] flex-shrink-0 flex items-center justify-center">
-                        <img src={item.images?.[0] || item.image || 'https://via.placeholder.com/400x400?text=No+Image'} alt={item.name} className="max-w-full max-h-full object-contain" />
+                        <img src={imageUrl} alt={product.name} className="max-w-full max-h-full object-contain" />
                       </div>
                       
                       <div className="flex-1 flex flex-col">
-                        <Link to={`/product/${item.id}`} className="text-[16px] text-[#212121] hover:text-[#2874F0] mb-1">
-                          {item.name}
+                        <Link to={`/product/${product.id}`} className="text-[16px] text-[#212121] hover:text-[#2874F0] mb-1">
+                          {product.name}
                         </Link>
                         
                         <div className="text-[14px] text-[#878787] mb-4">
-                          {item.selectedColor && <span>{item.selectedColor}</span>}
-                          {item.selectedColor && item.selectedVariant && <span>, </span>}
-                          {item.selectedVariant && <span>{item.selectedVariant}</span>}
+                          {product.brand && <span>{product.brand}</span>}
                         </div>
                         
                         <div className="flex items-center gap-3 mb-6">
-                          {item.originalPrice && (
-                            <span className="text-[14px] text-[#878787] line-through">₹{formatPrice(item.originalPrice)}</span>
+                          {itemMrp > itemPrice && (
+                            <span className="text-[14px] text-[#878787] line-through">₹{formatPrice(itemMrp)}</span>
                           )}
                           <span className="text-[18px] font-medium text-[#212121]">₹{formatPrice(itemPrice)}</span>
                           {itemDiscountPct > 0 && (
@@ -62,7 +70,7 @@ const Cart = () => {
                             <div className="flex items-center gap-3">
                               <button 
                                 className={`w-7 h-7 rounded-full border ${item.quantity <= 1 ? 'border-[#e0e0e0] text-[#c2c2c2] cursor-not-allowed' : 'border-[#c2c2c2] text-[#212121] hover:bg-gray-50'}`}
-                                onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedVariant, item.selectedColor)}
+                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                 disabled={item.quantity <= 1}
                               >
                                 -
@@ -72,18 +80,15 @@ const Cart = () => {
                               </div>
                               <button 
                                 className="w-7 h-7 rounded-full border border-[#c2c2c2] text-[#212121] hover:bg-gray-50 flex items-center justify-center"
-                                onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedVariant, item.selectedColor)}
+                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
                               >
                                 +
                               </button>
                             </div>
                           </div>
-                          <button className="text-[16px] font-medium text-[#212121] hover:text-[#2874F0] uppercase">
-                            Save for later
-                          </button>
                           <button 
                             className="text-[16px] font-medium text-[#212121] hover:text-[#2874F0] uppercase"
-                            onClick={() => removeFromCart(item.id, item.selectedVariant, item.selectedColor)}
+                            onClick={() => removeFromCart(item.id)}
                           >
                             Remove
                           </button>
@@ -134,7 +139,9 @@ const Cart = () => {
                 </div>
                 <div className="flex justify-between mb-6 text-[16px]">
                   <span className="text-[#212121]">Delivery Charges</span>
-                  <span className="text-[#388E3C]">Free</span>
+                  <span className={deliveryCharge === 0 ? "text-[#388E3C]" : "text-[#212121]"}>
+                    {deliveryCharge === 0 ? 'Free' : `₹${formatPrice(deliveryCharge)}`}
+                  </span>
                 </div>
                 
                 <div className="flex justify-between py-4 border-y border-[#dashed] text-[18px] font-bold text-[#212121] mb-4">
