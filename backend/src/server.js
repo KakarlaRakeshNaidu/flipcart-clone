@@ -80,6 +80,11 @@ async function startServer() {
 // If running on Vercel, export the app for serverless execution.
 // Otherwise, start the server normally for local development.
 if (process.env.VERCEL) {
+  // Explicitly test the database connection during Vercel cold start
+  prisma.$connect()
+    .then(() => console.log('✅ [Vercel] Database connected successfully'))
+    .catch((err) => console.error('❌ [Vercel] Failed to connect to database:', err));
+    
   module.exports = app;
 } else {
   startServer();
