@@ -40,6 +40,14 @@ export const productApi = {
   getCategories: () => api.get('/products/categories'),
 }
 
+// ─── Wishlist API ───────────────────────────────────────────
+export const wishlistApi = {
+  getWishlist: () => api.get('/wishlist'),
+  addToWishlist: (productId) => api.post('/wishlist/add', { productId }),
+  removeFromWishlist: (productId) => api.delete(`/wishlist/remove/${productId}`),
+  clearWishlist: () => api.delete('/wishlist/clear'),
+};
+
 // ─── Cart API ──────────────────────────────────────────────
 export const cartApi = {
   /** Get the current cart with computed totals */

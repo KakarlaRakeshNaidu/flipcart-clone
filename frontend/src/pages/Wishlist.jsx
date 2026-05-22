@@ -19,8 +19,8 @@ const Wishlist = () => {
         alignItems: 'flex-start',
       }}>
 
-        {/* Sidebar — fixed 248px */}
-        <div style={{ width: 248, flexShrink: 0 }}>
+        {/* Sidebar — fixed 280px */}
+        <div style={{ width: 280, flexShrink: 0 }}>
           <OrderSidebar />
         </div>
 

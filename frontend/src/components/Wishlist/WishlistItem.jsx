@@ -16,7 +16,7 @@ const WishlistItem = ({ item, onRemove, onMoveToCart }) => {
       {/* LEFT: Image */}
       <Link to={`/product/${item.id}`} style={{ position: 'relative', width: 112, height: 112, minWidth: 112, flexShrink: 0, marginRight: 20 }}>
         <img
-          src={item.image}
+          src={item.imageUrl}
           alt={item.name}
           style={{
             width: '100%',
@@ -96,7 +96,7 @@ const WishlistItem = ({ item, onRemove, onMoveToCart }) => {
             {item.rating} ★
           </span>
           <span style={{ color: '#878787', fontSize: 12 }}>
-            ({Number(item.reviews || 0).toLocaleString('en-IN')})
+            ({Number(item.reviewCount || 0).toLocaleString('en-IN')})
           </span>
         </div>
 
