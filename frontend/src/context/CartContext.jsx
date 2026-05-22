@@ -30,7 +30,8 @@ export const CartProvider = ({ children }) => {
     try {
       const data = await cartApi.getCart();
       backendAvailable.current = true;
-      setCartItems(data.items || []);
+      const cart = data.cart || data;
+      setCartItems(cart.items || []);
     } catch (error) {
       console.warn('Backend cart unavailable, using localStorage:', error.message);
       backendAvailable.current = false;
