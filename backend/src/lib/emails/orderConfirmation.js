@@ -30,9 +30,11 @@ async function sendOrderConfirmationEmail(orderId, userId) { // NEW
       <h3>Total Amount: ₹${order.totalAmount}</h3> // NEW
     `; // NEW
 
+    const recipientEmail = process.env.TEST_EMAIL || user.email;
+
     const { data, error } = await resend.emails.send({ // NEW
       from: 'Flipkart Clone <onboarding@resend.dev>', // NEW
-      to: user.email, // NEW
+      to: recipientEmail, // NEW
       subject: `Order Confirmed – #${order.id}`, // NEW
       html: htmlContent // NEW
     }); // NEW
