@@ -6,11 +6,11 @@ const { sendOrderConfirmationEmail } = require('../lib/emails/orderConfirmation'
 class OrderController {
   async placeOrder(req, res, next) {
     try {
-      const { shippingAddress, paymentMethod } = req.body;
+      const { shippingAddress, paymentMethod, email } = req.body;
       const result = await orderService.placeOrder(shippingAddress, paymentMethod);
       
       // NEW: Fire-and-forget email notification
-      void sendOrderConfirmationEmail(result.order.id, result.order.userId); // NEW
+      void sendOrderConfirmationEmail(result.order.id, result.order.userId, email); // NEW
 
       res.status(201).json({ success: true, ...result });
     } catch (error) {

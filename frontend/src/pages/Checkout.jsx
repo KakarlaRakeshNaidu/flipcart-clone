@@ -12,6 +12,7 @@ const Checkout = () => {
   const [address, setAddress] = useState({
     name: '',
     phone: '',
+    email: '',
     pincode: '',
     locality: '',
     address: '',
@@ -59,7 +60,7 @@ const Checkout = () => {
 
     try {
       // Try backend API first
-      const result = await orderApi.placeOrder(shippingAddress, paymentMethod);
+      const result = await orderApi.placeOrder(shippingAddress, paymentMethod, savedAddress.email);
       
       // Refresh cart (backend has already cleared it)
       await fetchCart();
@@ -184,6 +185,18 @@ const Checkout = () => {
                       />
                       <label htmlFor="phone" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">10-digit mobile number</label>
                     </div>
+                  </div>
+
+                  <div className="relative">
+                    <input 
+                      required type="email" 
+                      className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
+                      placeholder="Email Address" 
+                      value={address.email} 
+                      onChange={e => setAddress({...address, email: e.target.value})} 
+                      id="email"
+                    />
+                    <label htmlFor="email" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">Email Address</label>
                   </div>
                   
                   <div className="flex gap-4">

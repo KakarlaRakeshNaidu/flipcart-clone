@@ -82,8 +82,8 @@ export const cartApi = {
 // ─── Order API ─────────────────────────────────────────────
 export const orderApi = {
   /** Place an order (atomically clears cart) */
-  placeOrder: (shippingAddress, paymentMethod = 'COD') =>
-    api.post('orders', { shippingAddress, paymentMethod }),
+  placeOrder: (shippingAddress, paymentMethod = 'COD', email = null) =>
+    api.post('orders', { shippingAddress, paymentMethod, email }),
 
   /** Get all orders for the current user */
   getOrders: () => api.get('orders'),
