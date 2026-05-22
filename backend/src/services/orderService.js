@@ -31,15 +31,19 @@ class OrderService {
    * @param {string} paymentMethod
    */
   async placeOrder(shippingAddress, paymentMethod = 'COD') {
+    console.log('[OrderService] placeOrder started');
     const userId = await getDefaultUserId();
+    console.log(`[OrderService] Using userId: ${userId}`);
 
     // 1. Fetch cart items (outside transaction — read-only)
     const cartItems = await prisma.cartItem.findMany({
       where: { userId },
       include: { product: true },
     });
+    console.log(`[OrderService] Found ${cartItems.length} cart items`);
 
     if (cartItems.length === 0) {
+      console.log('[OrderService] Cart is empty — aborting');
       const error = new Error('Your cart is empty. Add items before placing an order.');
       error.status = 400;
       throw error;
@@ -68,6 +72,7 @@ class OrderService {
     );
     const deliveryCharge = totalAmount > 500 ? 0 : 40;
     const finalTotal = totalAmount + deliveryCharge;
+    console.log(`[OrderService] Calculated total: ₹${finalTotal} (items: ₹${totalAmount}, delivery: ₹${deliveryCharge})`);
 
     // 4. ATOMIC TRANSACTION: Create order + order items + deduct stock + clear cart
     const order = await prisma.$transaction(async (tx) => {
@@ -109,6 +114,7 @@ class OrderService {
 
       return newOrder;
     });
+    console.log(`[OrderService] Transaction committed — orderId: ${order.id}, status: ${order.status}`);
 
     return {
       order,

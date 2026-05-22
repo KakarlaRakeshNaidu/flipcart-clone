@@ -1,6 +1,5 @@
-// NEW
-// Created this file to handle order confirmation emails via Resend.
-// It uses the existing API key and safely wraps the send call in a try/catch.
+// backend/src/lib/emails/orderConfirmation.js
+// Order confirmation emails via Nodemailer (Gmail).
 
 const nodemailer = require('nodemailer');
 const prisma = require('../prisma');
@@ -14,6 +13,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
+
+console.log(`[Email Init] Nodemailer transporter created. EMAIL_USER: ${process.env.EMAIL_USER ? process.env.EMAIL_USER : '(NOT SET)'}, EMAIL_PASS: ${process.env.EMAIL_PASS ? '****' + process.env.EMAIL_PASS.slice(-4) : '(NOT SET)'}`);
 
 async function sendOrderConfirmationEmail(orderId, userId, providedEmail = null) {
   try {
