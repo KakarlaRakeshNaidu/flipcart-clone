@@ -10,6 +10,7 @@ const { PrismaClient } = require('@prisma/client');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 // ─── Middleware Imports ───────────────────────────────────
 const errorHandler = require('./middlewares/errorHandler');
@@ -39,6 +40,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/auth', authRoutes);
 
 // ─── 404 Handler ──────────────────────────────────────────
 // Note: No path argument — catches all unmatched routes (Express 4 & 5 compatible)

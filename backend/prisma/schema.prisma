@@ -11,6 +11,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── Otp Model ─────────────────────────────────────────────
+model Otp {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@map("otps")
+}
+
 // ─── User Model ────────────────────────────────────────────
 // Represents the logged-in shopper. For this assignment we use a
 // single "default" user seeded by seed.js (no auth required per spec).

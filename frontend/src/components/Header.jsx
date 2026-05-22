@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, ChevronDown, User, MapPin, Heart, UserCircle, PlusCircle, Package, Store, Gift, Bell, HeadphonesIcon, Megaphone, Smartphone } from 'lucide-react';
+import { Search, ShoppingCart, ChevronDown, User, MapPin, Heart, UserCircle, PlusCircle, Package, Store, Gift, Bell, HeadphonesIcon, Megaphone, Smartphone, LogOut } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductContext';
+import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
   const { getCartCount } = useCart();
   const { searchQuery, setSearchQuery, selectedCategory, setSelectedCategory } = useProducts();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   
   // State for dropdowns
@@ -80,20 +82,24 @@ const Header = () => {
             className="flex items-center gap-2 cursor-pointer hover:text-[#2874F0] transition-colors group h-[44px]"
             onMouseEnter={() => setIsLoginHovered(true)}
             onMouseLeave={() => setIsLoginHovered(false)}
+            onClick={() => !user && navigate('/login')}
           >
              <User size={20} />
-             <span className={`text-[15px] font-medium ${isLoginHovered ? 'text-[#2874F0]' : ''}`}>Login</span>
+             <span className={`text-[15px] font-medium ${isLoginHovered ? 'text-[#2874F0]' : ''}`}>
+               {user ? user.name.split(' ')[0] : 'Login'}
+             </span>
              <ChevronDown size={16} className={`transition-transform duration-300 ${isLoginHovered ? 'rotate-180 text-[#2874F0]' : 'text-gray-400'}`} />
              
              {/* Login Menu Popup */}
              {isLoginHovered && (
                <div className="absolute top-[44px] left-[-60px] w-[280px] bg-white rounded-md shadow-[0_4px_16px_rgba(0,0,0,0.15)] py-2 z-50 flex flex-col border border-gray-100 animate-fadeIn">
                  
-                 {/* Top Row: New Customer & Sign Up */}
-                 <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                    <span className="text-[14px] text-gray-800">New customer?</span>
-                    <Link to="/" className="text-[#2874F0] text-[14px] font-semibold hover:underline">Sign Up</Link>
-                 </div>
+                 {!user && (
+                   <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                      <span className="text-[14px] text-gray-800">New customer?</span>
+                      <Link to="/login" className="text-[#2874F0] text-[14px] font-semibold hover:underline">Sign Up</Link>
+                   </div>
+                 )}
                  
                  {/* Menu Items */}
                  <Link to="/" className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 transition-colors text-black">
@@ -104,7 +110,7 @@ const Header = () => {
                     <PlusCircle size={18} className="text-gray-500" />
                     <span className="text-[14px]">Flipkart Plus Zone</span>
                  </Link>
-                 <Link to="/" className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 transition-colors text-black">
+                 <Link to="/orders" className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 transition-colors text-black">
                     <Package size={18} className="text-gray-500" />
                     <span className="text-[14px]">Orders</span>
                  </Link>
@@ -140,6 +146,16 @@ const Header = () => {
                     <Smartphone size={18} className="text-gray-500" />
                     <span className="text-[14px]">Download App</span>
                  </Link>
+
+                 {user && (
+                   <button 
+                     onClick={(e) => { e.stopPropagation(); logout(); }}
+                     className="w-full flex items-center gap-4 px-4 py-3 hover:bg-gray-50 transition-colors text-black border-t border-gray-100"
+                   >
+                     <LogOut size={18} className="text-gray-500" />
+                     <span className="text-[14px]">Logout</span>
+                   </button>
+                 )}
                </div>
              )}
           </div>
