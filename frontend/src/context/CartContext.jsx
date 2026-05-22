@@ -29,8 +29,10 @@ export const CartProvider = ({ children }) => {
     }
     try {
       const data = await cartApi.getCart();
+      console.log('[CartContext] fetchCart raw response:', JSON.stringify(data).substring(0, 500));
       backendAvailable.current = true;
       const cart = data.cart || data;
+      console.log('[CartContext] fetchCart items count:', (cart.items || []).length);
       setCartItems(cart.items || []);
     } catch (error) {
       console.warn('Backend cart unavailable, using localStorage:', error.message);
@@ -49,11 +51,14 @@ export const CartProvider = ({ children }) => {
     const productId = isProduct ? productOrId.id : productOrId;
 
     // Try backend first
+    console.log('[CartContext] addToCart called with productId:', productId, 'backendAvailable:', backendAvailable.current);
     if (backendAvailable.current !== false) {
       try {
-        await cartApi.addToCart(String(productId), quantity);
+        const result = await cartApi.addToCart(String(productId), quantity);
+        console.log('[CartContext] addToCart backend success:', JSON.stringify(result).substring(0, 300));
         backendAvailable.current = true;
         await fetchCart();
+        console.log('[CartContext] fetchCart after addToCart done, cartItems length:', cartItems.length);
         return;
       } catch (error) {
         // If it's a genuine backend error (not network), don't fallback
