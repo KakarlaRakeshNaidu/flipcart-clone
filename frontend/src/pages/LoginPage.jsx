@@ -31,7 +31,8 @@ const LoginPage = () => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/auth/send-otp', {
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${API_BASE}/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -62,7 +63,8 @@ const LoginPage = () => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/auth/verify-otp', {
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${API_BASE}/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, code: otpCode })
@@ -98,7 +100,8 @@ const LoginPage = () => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ signupToken, name })

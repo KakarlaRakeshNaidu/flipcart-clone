@@ -5,7 +5,7 @@ import axios from 'axios'
 
 // ─── Axios Instance ────────────────────────────────────────
 const api = axios.create({
-  baseURL: '/api',  // Proxied to http://localhost:5000/api via Vite
+  baseURL: import.meta.env.VITE_API_URL || '/api',  // Uses dynamic env var for Vercel, falls back to Vite proxy
   headers: {
     'Content-Type': 'application/json',
   },
