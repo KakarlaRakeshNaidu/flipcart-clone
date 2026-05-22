@@ -11,6 +11,7 @@ const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const authRoutes = require('./routes/authRoutes');
+const wishlistRoutes = require('./routes/wishlistRoutes');
 
 // ─── Middleware Imports ───────────────────────────────────
 const errorHandler = require('./middlewares/errorHandler');
@@ -40,6 +41,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 
 // ─── 404 Handler ──────────────────────────────────────────
 // Note: No path argument — catches all unmatched routes (Express 4 & 5 compatible)
