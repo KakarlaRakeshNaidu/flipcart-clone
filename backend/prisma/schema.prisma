@@ -1,0 +1,119 @@
+// backend/prisma/schema.prisma
+// Flipkart Clone — Database Schema
+// Models: User, Product, CartItem, Order, OrderItem
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── User Model ────────────────────────────────────────────
+// Represents the logged-in shopper. For this assignment we use a
+// single "default" user seeded by seed.js (no auth required per spec).
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  cartItems CartItem[]
+  orders    Order[]
+
+  @@map("users")
+}
+
+// ─── Product Model ─────────────────────────────────────────
+model Product {
+  id           String   @id @default(cuid())
+  name         String
+  description  String
+  price        Float    // Selling price (in INR)
+  mrp          Float    // Maximum Retail Price (always >= price)
+  category     String   // "Electronics", "Fashion", "Home & Furniture"
+  subCategory  String?  // "Mobiles", "Laptops", "Men's Clothing", etc.
+  brand        String
+  imageUrl     String
+  rating       Float    @default(0) // 0.0 – 5.0
+  reviewCount  Int      @default(0)
+  stock        Int      @default(100)
+  specifications Json?  // Key-value pairs specific to category
+  isAvailable  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+// ─── CartItem Model ────────────────────────────────────────
+// Represents a single line item in a user's active cart.
+model CartItem {
+  id        String   @id @default(cuid())
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // One user can only have one CartItem per product
+  @@unique([userId, productId])
+  @@map("cart_items")
+}
+
+// ─── Order Model ───────────────────────────────────────────
+model Order {
+  id              String      @id @default(cuid())
+  status          OrderStatus @default(PENDING)
+  totalAmount     Float
+  shippingAddress String
+  paymentMethod   String      @default("COD") // Cash On Delivery
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@map("orders")
+}
+
+// ─── OrderItem Model ───────────────────────────────────────
+// Snapshot of the product at time of purchase (price may change later).
+model OrderItem {
+  id          String  @id @default(cuid())
+  quantity    Int
+  priceAtTime Float   // The price when the order was placed
+
+  // Relations
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+// ─── Enums ─────────────────────────────────────────────────
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}

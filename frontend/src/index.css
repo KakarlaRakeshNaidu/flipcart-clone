@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  --font-inter: "Inter", sans-serif;
+  
+  --color-primary: #2874f0;
+  --color-secondary: #1c41d6;
+  --color-background: #f0f2f5;
+  --color-surface: #ffffff;
+  --color-text-primary: #000000;
+  --color-text-primary-light: #333333;
+  --color-text-secondary: #565656;
+  --color-text-secondary-light: #878787;
+
+  --text-base: 12px;
+  --text-md: 14px;
+  
+  --radius-3px: 3px;
+  --radius-6px: 6px;
+  --radius-8px: 8px;
+  --radius-12px: 12px;
+  --radius-16px: 16px;
+
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+  --shadow-inner: none;
+}
+
+@layer base {
+  body {
+    @apply font-inter bg-background text-text-primary text-base;
+  }
+}
