@@ -14,15 +14,25 @@ const MyOrders = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
+      let backendOrders = [];
       try {
         const data = await orderApi.getOrders();
-        // The API returns { success: true, orders: [...] }
-        setOrders(data.orders || []);
+        backendOrders = data.orders || [];
       } catch (error) {
-        console.error('Failed to fetch orders:', error);
-      } finally {
-        setLoading(false);
+        console.warn('Backend orders unavailable, using local orders:', error.message);
       }
+      
+      // Also load localStorage orders (placed when backend was down)
+      let localOrders = [];
+      try {
+        localOrders = JSON.parse(localStorage.getItem('flipkart_orders') || '[]');
+      } catch { /* ignore */ }
+
+      // Merge: backend orders first, then local orders (avoiding duplicates by ID)
+      const backendIds = new Set(backendOrders.map(o => o.id));
+      const merged = [...backendOrders, ...localOrders.filter(o => !backendIds.has(o.id))];
+      setOrders(merged);
+      setLoading(false);
     };
     fetchOrders();
   }, []);

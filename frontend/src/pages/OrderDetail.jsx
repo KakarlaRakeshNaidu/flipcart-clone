@@ -17,7 +17,18 @@ const OrderDetail = () => {
         const data = await orderApi.getOrder(orderId);
         setOrder(data.order);
       } catch (err) {
-        setError(err.message);
+        // Fallback: check localStorage orders
+        try {
+          const localOrders = JSON.parse(localStorage.getItem('flipkart_orders') || '[]');
+          const localOrder = localOrders.find(o => o.id === orderId);
+          if (localOrder) {
+            setOrder(localOrder);
+          } else {
+            setError(err.message);
+          }
+        } catch {
+          setError(err.message);
+        }
       } finally {
         setLoading(false);
       }

@@ -3,13 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
 const Cart = () => {
-  const { cartItems, updateQuantity, removeFromCart, getCartTotal, getCartOriginalTotal, getCartCount, cartSummary, loading } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, getCartTotal, getCartOriginalTotal, getCartCount, loading } = useCart();
   const navigate = useNavigate();
 
   const total = getCartTotal();
   const originalTotal = getCartOriginalTotal();
-  const discount = cartSummary.discount || (originalTotal > total ? originalTotal - total : 0);
-  const deliveryCharge = cartSummary.deliveryCharge ?? 0;
+  const discount = originalTotal > total ? originalTotal - total : 0;
   const formatPrice = (n) => n ? Number(n).toLocaleString('en-IN') : '0';
 
   if (loading) {
@@ -33,11 +32,13 @@ const Cart = () => {
           {cartItems.length > 0 ? (
             <div className="bg-white shadow-sm flex flex-col">
               {cartItems.map((item, index) => {
-                const product = item.product || {};
+                // Support both backend shape (item.product) and localStorage shape (product fields at top level)
+                const product = item.product || item;
                 const itemPrice = product.price || 0;
                 const itemMrp = product.mrp || product.originalPrice || itemPrice;
                 const itemDiscountPct = itemMrp > itemPrice ? Math.round(((itemMrp - itemPrice) / itemMrp) * 100) : 0;
                 const imageUrl = product.imageUrl || product.images?.[0] || product.image || 'https://via.placeholder.com/400x400?text=No+Image';
+                const productId = product.id || item.productId;
 
                 return (
                   <div key={item.id || index} className="flex flex-col p-6 border-b border-[#f0f0f0]">
@@ -47,12 +48,14 @@ const Cart = () => {
                       </div>
                       
                       <div className="flex-1 flex flex-col">
-                        <Link to={`/product/${product.id}`} className="text-[16px] text-[#212121] hover:text-[#2874F0] mb-1">
+                        <Link to={`/product/${productId}`} className="text-[16px] text-[#212121] hover:text-[#2874F0] mb-1">
                           {product.name}
                         </Link>
                         
                         <div className="text-[14px] text-[#878787] mb-4">
                           {product.brand && <span>{product.brand}</span>}
+                          {item.selectedColor && <span> • {item.selectedColor}</span>}
+                          {item.selectedVariant && <span> • {item.selectedVariant}</span>}
                         </div>
                         
                         <div className="flex items-center gap-3 mb-6">
@@ -139,9 +142,7 @@ const Cart = () => {
                 </div>
                 <div className="flex justify-between mb-6 text-[16px]">
                   <span className="text-[#212121]">Delivery Charges</span>
-                  <span className={deliveryCharge === 0 ? "text-[#388E3C]" : "text-[#212121]"}>
-                    {deliveryCharge === 0 ? 'Free' : `₹${formatPrice(deliveryCharge)}`}
-                  </span>
+                  <span className="text-[#388E3C]">Free</span>
                 </div>
                 
                 <div className="flex justify-between py-4 border-y border-[#dashed] text-[18px] font-bold text-[#212121] mb-4">

@@ -5,25 +5,36 @@ import { useAuth } from './AuthContext';
 
 const WishlistContext = createContext();
 
+// ─── localStorage helpers ──────────────────────────────────
+function loadLocalWishlist() {
+  try {
+    return JSON.parse(localStorage.getItem('flipkart_wishlist') || '[]');
+  } catch { return []; }
+}
+function saveLocalWishlist(items) {
+  localStorage.setItem('flipkart_wishlist', JSON.stringify(items));
+}
+
 export const WishlistProvider = ({ children }) => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const { showToast } = useToast();
   const { user } = useAuth();
 
-  // Fetch wishlist from backend when user changes
+  // Fetch wishlist
   useEffect(() => {
     const fetchWishlist = async () => {
       if (!user) {
-        setWishlistItems([]);
+        // Even without login, load from localStorage
+        setWishlistItems(loadLocalWishlist());
         return;
       }
       try {
         const response = await wishlistApi.getWishlist();
-        // The interceptor already unwraps .data, so response IS the data
         const items = response.wishlist || response.data?.wishlist || [];
         setWishlistItems(items);
       } catch (error) {
-        console.error('Failed to fetch wishlist', error);
+        console.warn('Backend wishlist unavailable, using localStorage:', error.message);
+        setWishlistItems(loadLocalWishlist());
       }
     };
     fetchWishlist();
@@ -34,49 +45,41 @@ export const WishlistProvider = ({ children }) => {
   };
 
   const addToWishlist = async (product) => {
-    if (!user) {
-      showToast('Please login to add to wishlist', 'error');
-      return;
-    }
     const productId = product.id;
-    if (!isWishlisted(productId)) {
-      // Optimistic update
-      setWishlistItems(prev => [product, ...prev]);
+    if (isWishlisted(productId)) return;
+
+    // Optimistic update
+    const newItems = [product, ...wishlistItems];
+    setWishlistItems(newItems);
+    saveLocalWishlist(newItems);
+
+    if (user) {
       try {
         await wishlistApi.addToWishlist(productId);
-        showToast('Added to your Wishlist', 'success');
       } catch (error) {
-        // Revert on failure
-        setWishlistItems(prev => prev.filter(item => item.id !== productId));
-        showToast('Failed to add to wishlist', 'error');
+        console.warn('Backend wishlist add failed:', error.message);
       }
     }
+    showToast('Added to your Wishlist', 'success');
   };
 
   const removeFromWishlist = async (productId) => {
-    if (!user) return;
-    
-    // Store previous state for rollback
     const previousItems = [...wishlistItems];
-    
-    // Optimistic update
-    setWishlistItems(prev => prev.filter(item => String(item.id) !== String(productId)));
-    
-    try {
-      await wishlistApi.removeFromWishlist(productId);
-      showToast('Removed from your Wishlist', 'info');
-    } catch (error) {
-      // Revert on failure
-      setWishlistItems(previousItems);
-      showToast('Failed to remove from wishlist', 'error');
+    const newItems = wishlistItems.filter(item => String(item.id) !== String(productId));
+    setWishlistItems(newItems);
+    saveLocalWishlist(newItems);
+
+    if (user) {
+      try {
+        await wishlistApi.removeFromWishlist(productId);
+      } catch (error) {
+        console.warn('Backend wishlist remove failed:', error.message);
+      }
     }
+    showToast('Removed from your Wishlist', 'info');
   };
 
   const toggleWishlist = (product) => {
-    if (!user) {
-      showToast('Please login to use wishlist', 'error');
-      return;
-    }
     const productId = product.id;
     if (isWishlisted(productId)) {
       removeFromWishlist(productId);
@@ -86,40 +89,50 @@ export const WishlistProvider = ({ children }) => {
   };
 
   const moveToCart = async (productId) => {
-    if (!user) {
-      showToast('Please login first', 'error');
-      return;
-    }
+    // Find the product in wishlist
+    const product = wishlistItems.find(item => String(item.id) === String(productId));
+
     try {
       // Add to cart via backend API
       await cartApi.addToCart(String(productId), 1);
-      // Remove from wishlist
-      await removeFromWishlist(productId);
-      showToast('Item moved to cart', 'success');
     } catch (error) {
-      console.error('Failed to move to cart:', error);
-      showToast('Failed to move to cart', 'error');
+      console.warn('Backend cart add failed, using localStorage:', error.message);
+      // Fallback: add to localStorage cart
+      const cartItems = JSON.parse(localStorage.getItem('flipkart_cart') || '[]');
+      const existingIdx = cartItems.findIndex(i => String(i.productId || i.id) === String(productId));
+      if (existingIdx >= 0) {
+        cartItems[existingIdx].quantity += 1;
+      } else {
+        cartItems.push({
+          id: 'local_' + Date.now(),
+          productId: productId,
+          quantity: 1,
+          product: product || { id: productId, name: 'Product', price: 0 },
+        });
+      }
+      localStorage.setItem('flipkart_cart', JSON.stringify(cartItems));
     }
+
+    // Remove from wishlist
+    await removeFromWishlist(productId);
+    showToast('Item moved to cart', 'success');
   };
 
   const clearWishlist = async () => {
-    if (!user) return;
-    
-    const previousItems = [...wishlistItems];
     setWishlistItems([]);
-    
-    try {
-      await wishlistApi.clearWishlist();
-      showToast('Wishlist cleared', 'info');
-    } catch (error) {
-      setWishlistItems(previousItems);
-      showToast('Failed to clear wishlist', 'error');
+    saveLocalWishlist([]);
+
+    if (user) {
+      try {
+        await wishlistApi.clearWishlist();
+      } catch (error) {
+        console.warn('Backend wishlist clear failed:', error.message);
+      }
     }
+    showToast('Wishlist cleared', 'info');
   };
 
-  const getWishlistCount = () => {
-    return wishlistItems.length;
-  };
+  const getWishlistCount = () => wishlistItems.length;
 
   return (
     <WishlistContext.Provider value={{
