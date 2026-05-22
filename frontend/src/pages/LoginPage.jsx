@@ -31,7 +31,7 @@ const LoginPage = () => {
     setError('');
     
     try {
-      const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\\/$/, '');
+      const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
       const response = await fetch(`${API_BASE}/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -63,7 +63,7 @@ const LoginPage = () => {
     setError('');
     
     try {
-      const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\\/$/, '');
+      const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
       const response = await fetch(`${API_BASE}/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -100,7 +100,7 @@ const LoginPage = () => {
     setError('');
     
     try {
-      const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\\/$/, '');
+      const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
       const response = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
