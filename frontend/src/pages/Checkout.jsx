@@ -7,6 +7,7 @@ const Checkout = () => {
   const { cartItems, getCartTotal, getCartCount, clearCart } = useCart();
   const navigate = useNavigate();
   
+  const [currentStep, setCurrentStep] = useState(2);
   const [address, setAddress] = useState({
     name: '',
     phone: '',
@@ -16,6 +17,8 @@ const Checkout = () => {
     city: '',
     state: ''
   });
+  const [savedAddress, setSavedAddress] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('cod');
 
   if (cartItems.length === 0) {
     return (
@@ -25,15 +28,24 @@ const Checkout = () => {
     );
   }
 
-  const handlePlaceOrder = (e) => {
+  const handleAddressSubmit = (e) => {
     e.preventDefault();
+    setSavedAddress(address);
+    setCurrentStep(3);
+  };
+
+  const handleSummaryContinue = () => {
+    setCurrentStep(4);
+  };
+
+  const handlePlaceOrder = () => {
     const orderId = 'OD' + Math.floor(Math.random() * 1000000000000000);
     clearCart();
     navigate('/confirmation', { state: { orderId } });
   };
 
   const total = getCartTotal();
-  const formatPrice = (n) => n.toLocaleString('en-IN');
+  const formatPrice = (n) => n ? n.toLocaleString('en-IN') : '0';
 
   return (
     <div className="bg-[#F1F3F6] min-h-screen py-8">
@@ -56,132 +68,234 @@ const Checkout = () => {
             </button>
           </div>
           
-          {/* Step 2 (Active) */}
+          {/* Step 2 (Delivery Address) */}
           <div className="bg-white shadow-sm flex flex-col">
-            <div className="bg-[#2874F0] p-4 px-6 flex items-center gap-4 text-white">
-              <div className="bg-white text-[#2874F0] w-6 h-6 flex items-center justify-center text-[12px] font-bold rounded-[3px]">
-                2
+            <div className={`${currentStep === 2 ? 'bg-[#2874F0] text-white' : 'bg-white text-[#878787]'} p-4 px-6 flex items-center justify-between`}>
+              <div className="flex items-center gap-4">
+                <div className={`${currentStep === 2 ? 'bg-white text-[#2874F0]' : 'bg-[#f0f0f0] text-[#2874F0]'} w-6 h-6 flex items-center justify-center text-[12px] font-bold rounded-[3px]`}>
+                  2
+                </div>
+                <div className={`text-[16px] font-medium uppercase ${currentStep === 2 ? '' : 'text-[#878787]'}`}>Delivery Address</div>
+                {currentStep > 2 && <Check size={16} className="text-[#2874F0]" />}
               </div>
-              <div className="text-[16px] font-medium uppercase">Delivery Address</div>
+              {currentStep > 2 && (
+                <button 
+                  onClick={() => setCurrentStep(2)}
+                  className="text-[#2874F0] text-[14px] font-medium border border-[#e0e0e0] px-4 py-1 rounded-sm hover:bg-gray-50"
+                >
+                  CHANGE
+                </button>
+              )}
             </div>
             
-            <div className="p-6 pl-[64px]">
-              <form className="flex flex-col gap-4 max-w-[600px]" onSubmit={handlePlaceOrder}>
-                <div className="flex gap-4">
-                  <div className="flex-1 relative">
-                    <input 
-                      required type="text" 
-                      className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
-                      placeholder="Name" 
-                      value={address.name} 
-                      onChange={e => setAddress({...address, name: e.target.value})} 
-                      id="name"
-                    />
-                    <label htmlFor="name" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">Name</label>
+            {currentStep === 2 && (
+              <div className="p-6 pl-[64px]">
+                <form className="flex flex-col gap-4 max-w-[600px]" onSubmit={handleAddressSubmit}>
+                  <div className="flex gap-4">
+                    <div className="flex-1 relative">
+                      <input 
+                        required type="text" 
+                        className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
+                        placeholder="Name" 
+                        value={address.name} 
+                        onChange={e => setAddress({...address, name: e.target.value})} 
+                        id="name"
+                      />
+                      <label htmlFor="name" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">Name</label>
+                    </div>
+                    <div className="flex-1 relative">
+                      <input 
+                        required type="text" 
+                        className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
+                        placeholder="10-digit mobile number" 
+                        value={address.phone} 
+                        onChange={e => setAddress({...address, phone: e.target.value})} 
+                        id="phone"
+                      />
+                      <label htmlFor="phone" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">10-digit mobile number</label>
+                    </div>
                   </div>
-                  <div className="flex-1 relative">
-                    <input 
-                      required type="text" 
-                      className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
-                      placeholder="10-digit mobile number" 
-                      value={address.phone} 
-                      onChange={e => setAddress({...address, phone: e.target.value})} 
-                      id="phone"
-                    />
-                    <label htmlFor="phone" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">10-digit mobile number</label>
+                  
+                  <div className="flex gap-4">
+                    <div className="flex-1 relative">
+                      <input 
+                        required type="text" 
+                        className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
+                        placeholder="Pincode" 
+                        value={address.pincode} 
+                        onChange={e => setAddress({...address, pincode: e.target.value})} 
+                        id="pincode"
+                      />
+                      <label htmlFor="pincode" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">Pincode</label>
+                    </div>
+                    <div className="flex-1 relative">
+                      <input 
+                        required type="text" 
+                        className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
+                        placeholder="Locality" 
+                        value={address.locality} 
+                        onChange={e => setAddress({...address, locality: e.target.value})} 
+                        id="locality"
+                      />
+                      <label htmlFor="locality" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">Locality</label>
+                    </div>
                   </div>
+                  
+                  <div className="relative">
+                    <textarea 
+                      required 
+                      className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent resize-none" 
+                      placeholder="Address (Area and Street)" 
+                      rows="3" 
+                      value={address.address} 
+                      onChange={e => setAddress({...address, address: e.target.value})} 
+                      id="address"
+                    />
+                    <label htmlFor="address" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">Address (Area and Street)</label>
+                  </div>
+                  
+                  <div className="flex gap-4">
+                    <div className="flex-1 relative">
+                      <input 
+                        required type="text" 
+                        className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
+                        placeholder="City/District/Town" 
+                        value={address.city} 
+                        onChange={e => setAddress({...address, city: e.target.value})} 
+                        id="city"
+                      />
+                      <label htmlFor="city" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">City/District/Town</label>
+                    </div>
+                    <div className="flex-1 relative">
+                      <input 
+                        required type="text" 
+                        className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
+                        placeholder="State" 
+                        value={address.state} 
+                        onChange={e => setAddress({...address, state: e.target.value})} 
+                        id="state"
+                      />
+                      <label htmlFor="state" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">State</label>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4">
+                    <button type="submit" className="bg-[#fb641b] text-white font-medium text-[14px] px-8 py-3 rounded-sm shadow-sm hover:shadow-md transition-shadow">
+                      SAVE AND DELIVER HERE
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+            
+            {currentStep > 2 && savedAddress && (
+              <div className="p-4 px-6 pl-[64px] pb-6">
+                <div className="flex gap-2">
+                  <span className="font-medium text-[14px]">{savedAddress.name}</span>
+                  <span className="text-[14px]">{savedAddress.address}, {savedAddress.locality}, {savedAddress.city}, {savedAddress.state} - <span className="font-medium">{savedAddress.pincode}</span></span>
                 </div>
-                
-                <div className="flex gap-4">
-                  <div className="flex-1 relative">
-                    <input 
-                      required type="text" 
-                      className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
-                      placeholder="Pincode" 
-                      value={address.pincode} 
-                      onChange={e => setAddress({...address, pincode: e.target.value})} 
-                      id="pincode"
-                    />
-                    <label htmlFor="pincode" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">Pincode</label>
-                  </div>
-                  <div className="flex-1 relative">
-                    <input 
-                      required type="text" 
-                      className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
-                      placeholder="Locality" 
-                      value={address.locality} 
-                      onChange={e => setAddress({...address, locality: e.target.value})} 
-                      id="locality"
-                    />
-                    <label htmlFor="locality" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">Locality</label>
-                  </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Step 3 (Order Summary) */}
+          <div className="bg-white shadow-sm flex flex-col">
+            <div className={`${currentStep === 3 ? 'bg-[#2874F0] text-white' : 'bg-white text-[#878787]'} p-4 px-6 flex items-center justify-between`}>
+              <div className="flex items-center gap-4">
+                <div className={`${currentStep === 3 ? 'bg-white text-[#2874F0]' : 'bg-[#f0f0f0] text-[#2874F0]'} w-6 h-6 flex items-center justify-center text-[12px] font-bold rounded-[3px]`}>
+                  3
                 </div>
-                
-                <div className="relative">
-                  <textarea 
-                    required 
-                    className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent resize-none" 
-                    placeholder="Address (Area and Street)" 
-                    rows="3" 
-                    value={address.address} 
-                    onChange={e => setAddress({...address, address: e.target.value})} 
-                    id="address"
-                  />
-                  <label htmlFor="address" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">Address (Area and Street)</label>
-                </div>
-                
-                <div className="flex gap-4">
-                  <div className="flex-1 relative">
-                    <input 
-                      required type="text" 
-                      className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
-                      placeholder="City/District/Town" 
-                      value={address.city} 
-                      onChange={e => setAddress({...address, city: e.target.value})} 
-                      id="city"
-                    />
-                    <label htmlFor="city" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">City/District/Town</label>
+                <div className={`text-[16px] font-medium uppercase ${currentStep === 3 ? '' : 'text-[#878787]'}`}>Order Summary</div>
+                {currentStep > 3 && <Check size={16} className="text-[#2874F0]" />}
+              </div>
+              {currentStep > 3 && (
+                <button 
+                  onClick={() => setCurrentStep(3)}
+                  className="text-[#2874F0] text-[14px] font-medium border border-[#e0e0e0] px-4 py-1 rounded-sm hover:bg-gray-50"
+                >
+                  CHANGE
+                </button>
+              )}
+            </div>
+            
+            {currentStep === 3 && (
+              <div>
+                {cartItems.map((item, idx) => (
+                  <div key={idx} className="p-6 flex gap-6 border-b border-[#f0f0f0]">
+                    <div className="w-[100px] h-[100px] flex-shrink-0 flex items-center justify-center">
+                      <img src={item.image} alt={item.name} className="max-w-full max-h-full object-contain" />
+                    </div>
+                    <div className="flex flex-col gap-2 flex-grow">
+                      <div className="text-[16px] text-[#212121]">{item.name}</div>
+                      <div className="text-[14px] text-[#878787]">Quantity: {item.quantity}</div>
+                      <div className="flex items-center gap-3 mt-2">
+                        <span className="text-[#878787] line-through text-[14px]">₹{formatPrice(item.originalPrice)}</span>
+                        <span className="text-[#212121] font-medium text-[18px]">₹{formatPrice(item.price)}</span>
+                        <span className="text-[#388E3C] font-medium text-[14px]">
+                          {item.originalPrice ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100) : 0}% Off
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1 relative">
-                    <input 
-                      required type="text" 
-                      className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
-                      placeholder="State" 
-                      value={address.state} 
-                      onChange={e => setAddress({...address, state: e.target.value})} 
-                      id="state"
-                    />
-                    <label htmlFor="state" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">State</label>
-                  </div>
-                </div>
+                ))}
                 
-                <div className="mt-4">
-                  <button type="submit" className="bg-[#fb641b] text-white font-medium text-[14px] px-8 py-3 rounded-sm shadow-sm hover:shadow-md transition-shadow">
-                    SAVE AND DELIVER HERE
+                <div className="p-4 px-6 border-t border-[#f0f0f0] flex justify-between items-center bg-white shadow-[0_-2px_10px_0_rgba(0,0,0,0.05)]">
+                  <div>
+                    <div className="text-[14px]">Order confirmation email will be sent to your registered email ID</div>
+                  </div>
+                  <button 
+                    onClick={handleSummaryContinue}
+                    className="bg-[#fb641b] text-white font-medium text-[14px] px-10 py-3 rounded-sm shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    CONTINUE
                   </button>
                 </div>
-              </form>
-            </div>
-          </div>
-          
-          {/* Step 3 */}
-          <div className="bg-white shadow-sm flex items-center p-4 px-6">
-            <div className="flex items-center gap-4">
-              <div className="bg-[#f0f0f0] text-[#2874F0] w-6 h-6 flex items-center justify-center text-[12px] font-bold rounded-[3px]">
-                3
               </div>
-              <div className="text-[16px] font-medium text-[#878787]">ORDER SUMMARY</div>
-            </div>
+            )}
+            
+            {currentStep > 3 && (
+              <div className="p-4 px-6 pl-[64px] pb-6">
+                <span className="text-[14px] font-medium">{getCartCount()} Item(s)</span>
+              </div>
+            )}
           </div>
           
-          {/* Step 4 */}
-          <div className="bg-white shadow-sm flex items-center p-4 px-6">
-            <div className="flex items-center gap-4">
-              <div className="bg-[#f0f0f0] text-[#2874F0] w-6 h-6 flex items-center justify-center text-[12px] font-bold rounded-[3px]">
+          {/* Step 4 (Payment Options) */}
+          <div className="bg-white shadow-sm flex flex-col">
+            <div className={`${currentStep === 4 ? 'bg-[#2874F0] text-white' : 'bg-white text-[#878787]'} p-4 px-6 flex items-center gap-4`}>
+              <div className={`${currentStep === 4 ? 'bg-white text-[#2874F0]' : 'bg-[#f0f0f0] text-[#2874F0]'} w-6 h-6 flex items-center justify-center text-[12px] font-bold rounded-[3px]`}>
                 4
               </div>
-              <div className="text-[16px] font-medium text-[#878787]">PAYMENT OPTIONS</div>
+              <div className={`text-[16px] font-medium uppercase ${currentStep === 4 ? '' : 'text-[#878787]'}`}>Payment Options</div>
             </div>
+            
+            {currentStep === 4 && (
+              <div className="p-6 pl-[64px]">
+                <div className="flex flex-col gap-4">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="payment" 
+                      value="cod" 
+                      checked={paymentMethod === 'cod'}
+                      onChange={() => setPaymentMethod('cod')}
+                      className="w-4 h-4 text-[#2874F0] focus:ring-[#2874F0]"
+                    />
+                    <span className="text-[16px]">Cash on Delivery</span>
+                  </label>
+                  
+                  <div className="mt-6 flex items-center gap-4">
+                     <button 
+                      onClick={handlePlaceOrder}
+                      className="bg-[#fb641b] text-white font-medium text-[16px] px-12 py-3 rounded-sm shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      PLACE ORDER
+                    </button>
+                    <span className="text-[14px] text-[#878787]">You will pay ₹{formatPrice(total)} upon delivery</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           
         </div>
