@@ -3,8 +3,16 @@
 
 import axios from 'axios'
 
+// Backend API URL resolution:
+// 1. Use VITE_API_URL env var if set
+// 2. Use /api for local dev (proxied by Vite)
+// 3. Use the deployed backend URL for production
+const BACKEND_URL = 'https://flipcart-clone-nu.vercel.app';
 const rawApiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-const baseURL = rawApiUrl ? (rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`) : '/api';
+const isLocalDev = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+const baseURL = rawApiUrl
+  ? (rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`)
+  : (isLocalDev ? '/api' : `${BACKEND_URL}/api`);
 
 // ─── Axios Instance ────────────────────────────────────────
 const api = axios.create({
