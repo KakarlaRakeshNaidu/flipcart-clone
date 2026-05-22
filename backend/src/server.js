@@ -82,7 +82,13 @@ async function startServer() {
   }
 }
 
-startServer();
+// If running on Vercel, export the app for serverless execution.
+// Otherwise, start the server normally for local development.
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  startServer();
+}
 
 // ─── Graceful Shutdown ────────────────────────────────────
 process.on('SIGINT', async () => {
