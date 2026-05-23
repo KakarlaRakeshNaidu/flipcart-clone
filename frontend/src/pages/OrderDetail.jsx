@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Download, MapPin, Phone, HelpCircle, Star, XCircle, RefreshCcw } from 'lucide-react';
+import { ChevronLeft, Download, MapPin, Phone, HelpCircle, Star, XCircle, RefreshCcw, Loader2 } from 'lucide-react';
 import StatusStepper from '../components/Orders/StatusStepper';
 import { orderApi } from '../services/api';
 
@@ -36,7 +36,12 @@ const OrderDetail = () => {
     fetchOrder();
   }, [orderId]);
 
-  if (loading) return <div className="min-h-screen bg-[#f1f3f6] flex items-center justify-center">Loading order details...</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-[#f1f3f6] flex flex-col items-center justify-center">
+      <Loader2 className="animate-spin text-[#2874f0] mb-4" size={40} />
+      <div className="text-[#878787] font-medium">Loading order details...</div>
+    </div>
+  );
   if (error || !order) return <div className="min-h-screen bg-[#f1f3f6] flex items-center justify-center text-red-500">Order not found</div>;
 
   const item = order.orderItems?.[0]?.product;

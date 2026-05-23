@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ChevronLeft } from 'lucide-react';
+import { Search, ChevronLeft, Loader2 } from 'lucide-react';
 import OrderSidebar from '../components/Orders/OrderSidebar';
 import OrderCard from '../components/Orders/OrderCard';
 import { orderApi } from '../services/api';
@@ -115,7 +115,10 @@ const MyOrders = () => {
 
           {/* Orders List */}
           {loading ? (
-            <div className="bg-white p-8 text-center text-[#878787]">Loading your orders...</div>
+            <div className="bg-white p-12 flex flex-col items-center justify-center text-center rounded-sm shadow-[0_2px_4px_0_rgba(0,0,0,0.08)]">
+              <Loader2 className="animate-spin text-[#2874f0] mb-4" size={40} />
+              <div className="text-[#878787]">Loading your orders...</div>
+            </div>
           ) : filteredOrders.length > 0 ? (
             <div className="flex flex-col gap-4">
               {filteredOrders.map(order => (
