@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Loader2 } from 'lucide-react';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [name, setName] = useState('');
-
+  
   // authMode determines the UI text before OTP is sent
   const [authMode, setAuthMode] = useState('LOGIN'); // 'LOGIN' | 'SIGNUP'
   // Steps: 'ENTER_EMAIL' | 'VERIFY_OTP' | 'ENTER_NAME'
   const [step, setStep] = useState('ENTER_EMAIL');
-
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [signupToken, setSignupToken] = useState(null);
@@ -26,10 +27,10 @@ const LoginPage = () => {
       setError('Please enter a valid email address');
       return;
     }
-
+    
     setLoading(true);
     setError('');
-
+    
     try {
       const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
       const response = await fetch(`${API_BASE}/api/auth/send-otp`, {
@@ -37,7 +38,7 @@ const LoginPage = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
-
+      
       const data = await response.json();
       if (data.success) {
         setStep('VERIFY_OTP');
@@ -58,10 +59,10 @@ const LoginPage = () => {
       setError('Please enter a valid 6-digit OTP');
       return;
     }
-
+    
     setLoading(true);
     setError('');
-
+    
     try {
       const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
       const response = await fetch(`${API_BASE}/api/auth/verify-otp`, {
@@ -69,7 +70,7 @@ const LoginPage = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, code: otpCode })
       });
-
+      
       const data = await response.json();
       if (data.success) {
         if (data.isNewUser) {
@@ -95,10 +96,10 @@ const LoginPage = () => {
       setError('Please enter your name');
       return;
     }
-
+    
     setLoading(true);
     setError('');
-
+    
     try {
       const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
       const response = await fetch(`${API_BASE}/api/auth/register`, {
@@ -106,7 +107,7 @@ const LoginPage = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ signupToken, name })
       });
-
+      
       const data = await response.json();
       if (data.success) {
         login(data.user, data.token);
@@ -123,7 +124,7 @@ const LoginPage = () => {
 
   const handleOtpChange = (element, index) => {
     if (isNaN(element.value)) return false;
-
+    
     const newOtp = [...otp];
     newOtp[index] = element.value;
     setOtp(newOtp);
@@ -137,25 +138,25 @@ const LoginPage = () => {
   return (
     <div className="bg-[#F1F3F6] min-h-[calc(100vh-130px)] py-8 flex items-center justify-center">
       <div className="bg-white shadow-sm flex rounded-sm overflow-hidden w-full max-w-[850px] min-h-[520px]">
-
+        
         {/* Left Blue Panel */}
         <div className="w-[40%] bg-[#2874f0] p-10 flex flex-col justify-between text-white relative">
           <div>
             <h1 className="text-[28px] font-medium mb-4">
-              {step === 'ENTER_NAME' || authMode === 'SIGNUP'
-                ? "Looks like you're new here!"
+              {step === 'ENTER_NAME' || authMode === 'SIGNUP' 
+                ? "Looks like you're new here!" 
                 : "Login"}
             </h1>
             <p className="text-[18px] text-[#dbdbdb] leading-relaxed pr-4">
-              {step === 'ENTER_NAME' || authMode === 'SIGNUP'
-                ? "Sign up with your mobile number to get started"
+              {step === 'ENTER_NAME' || authMode === 'SIGNUP' 
+                ? "Sign up with your mobile number to get started" 
                 : "Get access to your Orders, Wishlist and Recommendations"}
             </p>
           </div>
           <div className="absolute bottom-0 left-0 w-full flex justify-center">
-            <img
-              src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/login_img_c4a81e.png"
-              alt="Login illustration"
+            <img 
+              src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/login_img_c4a81e.png" 
+              alt="Login illustration" 
               className="w-full object-contain"
             />
           </div>
@@ -169,15 +170,15 @@ const LoginPage = () => {
                 {error}
               </div>
             )}
-
+            
             {step === 'ENTER_EMAIL' && (
               <form onSubmit={handleSendOtp} className="flex flex-col gap-6">
                 <div className="relative pt-4">
-                  <input
-                    type="email"
+                  <input 
+                    type="email" 
                     required
-                    className="w-full border-b border-[#e0e0e0] py-2 text-[16px] outline-none focus:border-[#2874F0] peer placeholder-transparent bg-transparent"
-                    placeholder="Enter Email Address"
+                    className="w-full border-b border-[#e0e0e0] py-2 text-[16px] outline-none focus:border-[#2874F0] peer placeholder-transparent bg-transparent" 
+                    placeholder="Enter Email Address" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     id="email"
@@ -186,22 +187,26 @@ const LoginPage = () => {
                     Enter Email/Mobile number
                   </label>
                 </div>
-
+                
                 <p className="text-[12px] text-[#878787] mt-4">
                   By continuing, you agree to Flipkart's <span className="text-[#2874F0] cursor-pointer">Terms of Use</span> and <span className="text-[#2874F0] cursor-pointer">Privacy Policy</span>.
                 </p>
-
-                <button
-                  type="submit"
+                
+                <button 
+                  type="submit" 
                   disabled={loading}
-                  className="w-full bg-[#fb641b] text-white py-3 rounded-sm font-medium text-[15px] mt-2 shadow-sm disabled:opacity-70"
+                  className="w-full bg-[#fb641b] text-white py-3 rounded-sm font-medium text-[15px] mt-2 shadow-sm disabled:opacity-70 flex justify-center items-center gap-2"
                 >
-                  {loading ? 'Processing...' : (authMode === 'SIGNUP' ? 'CONTINUE' : 'Request OTP')}
+                  {loading ? (
+                    <><Loader2 className="animate-spin" size={20} /> Processing...</>
+                  ) : (
+                    authMode === 'SIGNUP' ? 'CONTINUE' : 'Request OTP'
+                  )}
                 </button>
 
                 {authMode === 'SIGNUP' && (
-                  <button
-                    type="button"
+                  <button 
+                    type="button" 
                     onClick={() => setAuthMode('LOGIN')}
                     className="w-full bg-white text-[#2874F0] border border-[#e0e0e0] py-3 rounded-sm font-medium text-[15px] shadow-sm hover:shadow-md transition-shadow"
                   >
@@ -236,13 +241,13 @@ const LoginPage = () => {
                     );
                   })}
                 </div>
-
-                <button
-                  type="submit"
+                
+                <button 
+                  type="submit" 
                   disabled={loading}
-                  className="w-full bg-[#2874F0] text-white py-3 rounded-sm font-medium text-[15px] shadow-sm disabled:opacity-70"
+                  className="w-full bg-[#2874F0] text-white py-3 rounded-sm font-medium text-[15px] shadow-sm disabled:opacity-70 flex justify-center items-center gap-2"
                 >
-                  {loading ? 'Verifying...' : 'Verify'}
+                  {loading ? <><Loader2 className="animate-spin" size={20} /> Verifying...</> : 'Verify'}
                 </button>
               </form>
             )}
@@ -250,11 +255,11 @@ const LoginPage = () => {
             {step === 'ENTER_NAME' && (
               <form onSubmit={handleRegister} className="flex flex-col gap-6">
                 <div className="relative pt-4">
-                  <input
-                    type="text"
+                  <input 
+                    type="text" 
                     required
-                    className="w-full border-b border-[#e0e0e0] py-2 text-[16px] outline-none focus:border-[#2874F0] peer placeholder-transparent bg-transparent"
-                    placeholder="Enter your Full Name"
+                    className="w-full border-b border-[#e0e0e0] py-2 text-[16px] outline-none focus:border-[#2874F0] peer placeholder-transparent bg-transparent" 
+                    placeholder="Enter your Full Name" 
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     id="name"
@@ -263,13 +268,13 @@ const LoginPage = () => {
                     Enter your Full Name
                   </label>
                 </div>
-
-                <button
-                  type="submit"
+                
+                <button 
+                  type="submit" 
                   disabled={loading}
-                  className="w-full bg-[#fb641b] text-white py-3 rounded-sm font-medium text-[15px] mt-6 shadow-sm disabled:opacity-70"
+                  className="w-full bg-[#fb641b] text-white py-3 rounded-sm font-medium text-[15px] mt-6 shadow-sm disabled:opacity-70 flex justify-center items-center gap-2"
                 >
-                  {loading ? 'Creating Account...' : 'CONTINUE'}
+                  {loading ? <><Loader2 className="animate-spin" size={20} /> Creating Account...</> : 'CONTINUE'}
                 </button>
               </form>
             )}
