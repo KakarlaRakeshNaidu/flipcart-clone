@@ -8,20 +8,20 @@ const prisma = require('../lib/prisma');
 class OrderController {
   async placeOrder(req, res, next) {
     try {
-      const { shippingAddress, paymentMethod } = req.body;
+      const { shippingAddress, paymentMethod, email } = req.body;
       const userId = req.userId;
       console.log(`[Order] placeOrder called — userId: ${userId}, paymentMethod: ${paymentMethod}`);
 
       const result = await orderService.placeOrder(userId, shippingAddress, paymentMethod);
       console.log(`[Order] Order created successfully — orderId: ${result.order.id}, userId: ${result.order.userId}, total: ₹${result.order.totalAmount}, items: ${result.order.orderItems?.length || '?'}`);
       
-      // Look up the user's email for the confirmation
+      // Look up the user's email for the confirmation, preferring explicitly provided email
       const user = await prisma.user.findUnique({ where: { id: userId } });
-      const recipientEmail = user ? user.email : null;
+      const recipientEmail = email || (user ? user.email : null);
 
-      // Fire-and-forget email notification
+      // Await email notification to ensure it completes before response
       console.log(`[Order] Triggering confirmation email — orderId: ${result.order.id}, recipientEmail: ${recipientEmail || '(not found)'}`);
-      void sendOrderConfirmationEmail(result.order.id, userId, recipientEmail);
+      await sendOrderConfirmationEmail(result.order.id, userId, recipientEmail);
 
       res.status(201).json({ success: true, ...result });
     } catch (error) {
