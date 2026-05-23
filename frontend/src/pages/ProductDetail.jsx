@@ -81,44 +81,44 @@ const ProductDetail = () => {
               Let's make it grid-cols-12. Left 5 (41%), Right 7 (58%). 
               The prompt explicitly says: "Left 60%: Main image... Right 40%: Details...". I will follow the prompt exactly: Left 60%, Right 40% */}
           
-          <div className="w-full lg:w-[45%] flex flex-col border-r border-[#f0f0f0] p-4 lg:sticky lg:top-[112px] lg:h-[calc(100vh-112px)] overflow-y-auto hide-scrollbar">
-            <div className="flex gap-4">
+          <div className="w-full lg:w-[45%] flex flex-col border-b lg:border-b-0 lg:border-r border-[#f0f0f0] p-3 md:p-4 lg:sticky lg:top-[112px] lg:h-[calc(100vh-112px)] overflow-y-auto hide-scrollbar">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 md:gap-4">
               {/* Thumbnails */}
-              <div className="flex flex-col gap-2 w-[64px]">
+              <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-[64px] overflow-x-auto sm:overflow-x-visible hide-scrollbar">
                 {images.map((img, idx) => (
                   <div 
                     key={idx} 
-                    className={`w-[64px] h-[64px] p-1 border cursor-pointer hover:border-[#2874F0] transition-colors ${selectedImage === idx ? 'border-[#2874F0] ring-1 ring-[#2874F0]' : 'border-[#f0f0f0]'}`}
+                    className={`w-[52px] h-[52px] sm:w-[64px] sm:h-[64px] flex-shrink-0 p-1 border cursor-pointer hover:border-[#2874F0] transition-colors ${selectedImage === idx ? 'border-[#2874F0] ring-1 ring-[#2874F0]' : 'border-[#f0f0f0]'}`}
                     onMouseEnter={() => setSelectedImage(idx)}
                     onClick={() => setSelectedImage(idx)}
                   >
-                    <img src={img} alt="" className="w-full h-full object-contain" onError={(e) => { e.target.src = 'https://via.placeholder.com/400x400?text=No+Image' }}/>
+                    <img src={img} alt="" className="w-full h-full object-contain" onError={(e) => { e.target.src = '/placeholder-product.png' }}/>
                   </div>
                 ))}
               </div>
               
               {/* Main Image */}
-              <div className="flex-1 relative border border-[#f0f0f0] p-4 h-[450px] flex items-center justify-center">
+              <div className="flex-1 relative border border-[#f0f0f0] p-2 md:p-4 h-[280px] sm:h-[350px] md:h-[450px] flex items-center justify-center">
                 <img 
                   src={images[selectedImage]} 
                   alt={product.name} 
                   className="max-w-full max-h-full object-contain"
-                  onError={(e) => { e.target.src = 'https://via.placeholder.com/400x400?text=No+Image' }}
+                  onError={(e) => { e.target.src = '/placeholder-product.png' }}
                 />
               </div>
             </div>
             
             {/* Sticky Buttons at bottom of left panel */}
-            <div className="flex gap-2 mt-4">
+            <div className="flex gap-2 mt-3 md:mt-4">
               <button 
                 onClick={handleAddToCart}
-                className="flex-1 bg-[#ff9f00] text-white font-bold text-[16px] py-4 rounded-sm shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] flex items-center justify-center gap-2"
+                className="flex-1 bg-[#ff9f00] text-white font-bold text-[14px] md:text-[16px] py-3 md:py-4 rounded-sm shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] flex items-center justify-center gap-2"
               >
                 <ShoppingCart fill="currentColor" size={20} /> ADD TO CART
               </button>
               <button 
                 onClick={handleBuyNow}
-                className="flex-1 bg-[#fb641b] text-white font-bold text-[16px] py-4 rounded-sm shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] flex items-center justify-center gap-2"
+                className="flex-1 bg-[#fb641b] text-white font-bold text-[14px] md:text-[16px] py-3 md:py-4 rounded-sm shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] flex items-center justify-center gap-2"
               >
                 <Zap fill="currentColor" size={20} /> BUY NOW
               </button>
@@ -126,10 +126,10 @@ const ProductDetail = () => {
           </div>
 
           {/* RIGHT PANEL - 55% */}
-          <div className="w-full lg:w-[55%] p-6">
+          <div className="w-full lg:w-[55%] p-4 md:p-6">
             
             {/* Breadcrumbs */}
-            <div className="text-[12px] text-[#878787] flex items-center gap-1 mb-2">
+            <div className="text-[11px] md:text-[12px] text-[#878787] flex items-center gap-1 mb-2 flex-wrap">
               <Link to="/" className="hover:text-[#2874F0]">Home</Link>
               <ChevronRight size={12} />
               <Link to="/" className="hover:text-[#2874F0]">{product.category}</Link>
@@ -148,8 +148,7 @@ const ProductDetail = () => {
                 {(product.reviews || product.reviewCount || 0).toLocaleString()} Ratings & Reviews
               </span>
             </div>
-
-            <div className="flex items-end gap-3 mb-4">
+            <div className="flex items-end gap-2 md:gap-3 mb-4 flex-wrap">
               <span className="text-[28px] font-medium text-[#212121]">₹{formatPrice(currentPrice)}</span>
               {(product.originalPrice || product.mrp) && (product.originalPrice || product.mrp) > currentPrice && (
                 <span className="text-[16px] text-[#878787] line-through mb-1">₹{formatPrice(product.originalPrice || product.mrp)}</span>
@@ -236,7 +235,7 @@ const ProductDetail = () => {
             )}
 
             {/* Quantity & Extra Buttons */}
-            <div className="flex items-center gap-4 mb-6 pt-4 border-t border-[#f0f0f0]">
+            <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-6 pt-4 border-t border-[#f0f0f0]">
               <div className="flex items-center gap-2">
                 <span className="text-[#878787] text-[14px] font-medium">Quantity:</span>
                 <div className="flex items-center border border-[#e0e0e0] rounded-sm">
@@ -261,17 +260,17 @@ const ProductDetail = () => {
                 <table className="w-full text-[14px]">
                   <tbody>
                     <tr className="flex py-2">
-                      <td className="w-[25%] text-[#878787]">Brand</td>
-                      <td className="w-[75%] text-[#212121]">{product.brand}</td>
+                      <td className="w-[35%] sm:w-[30%] md:w-[25%] text-[#878787]">Brand</td>
+                      <td className="w-[65%] sm:w-[70%] md:w-[75%] text-[#212121]">{product.brand}</td>
                     </tr>
                     <tr className="flex py-2">
-                      <td className="w-[25%] text-[#878787]">Model Name</td>
-                      <td className="w-[75%] text-[#212121]">{product.name}</td>
+                      <td className="w-[35%] sm:w-[30%] md:w-[25%] text-[#878787]">Model Name</td>
+                      <td className="w-[65%] sm:w-[70%] md:w-[75%] text-[#212121]">{product.name}</td>
                     </tr>
                     {product.specifications && Object.entries(product.specifications).map(([key, value]) => (
                       <tr key={key} className="flex py-2">
-                        <td className="w-[25%] text-[#878787]">{key}</td>
-                        <td className="w-[75%] text-[#212121]">{value}</td>
+                        <td className="w-[35%] sm:w-[30%] md:w-[25%] text-[#878787]">{key}</td>
+                        <td className="w-[65%] sm:w-[70%] md:w-[75%] text-[#212121]">{value}</td>
                       </tr>
                     ))}
                   </tbody>

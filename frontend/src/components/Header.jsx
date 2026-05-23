@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, ChevronDown, User, MapPin, Heart, UserCircle, PlusCircle, Package, Store, Gift, Bell, HeadphonesIcon, Megaphone, Smartphone, LogOut } from 'lucide-react';
+import { Search, ShoppingCart, ChevronDown, User, MapPin, Heart, UserCircle, PlusCircle, Package, Store, Gift, Bell, HeadphonesIcon, Megaphone, Smartphone, LogOut, Menu, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductContext';
 import { useAuth } from '../context/AuthContext';
@@ -16,11 +16,15 @@ const Header = () => {
   // State for dropdowns
   const [isLoginHovered, setIsLoginHovered] = useState(false);
   const [isMoreHovered, setIsMoreHovered] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
     navigate('/');
   };
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   const navCategories = [
     { name: "For You", icon: "https://rukminim2.flixcart.com/fk-p-flap/64/64/image/6e3e1efa83bc56c3.png?q=100" },
@@ -41,8 +45,8 @@ const Header = () => {
 
   return (
     <div className="bg-white">
-      {/* Top utility bar */}
-      <div className="container mx-auto max-w-[1248px] px-4 py-2 flex items-center justify-between">
+      {/* Top utility bar — Hidden on mobile */}
+      <div className="hidden md:flex container mx-auto max-w-[1248px] px-4 py-2 items-center justify-between">
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center bg-[#FFD700] hover:bg-[#FFC000] px-3 py-1.5 rounded-md transition-colors">
             <span className="text-[#2874F0] font-bold text-lg italic tracking-tight mr-1">Flipkart</span>
@@ -59,8 +63,134 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Main Search & Nav Bar */}
-      <div className="container mx-auto max-w-[1248px] px-4 pb-2 flex items-center gap-6">
+      {/* ===== MOBILE TOP BAR ===== */}
+      <div className="md:hidden flex items-center justify-between px-3 py-2 border-b border-[#f0f0f0]">
+        <Link to="/" className="flex items-center bg-[#FFD700] px-2.5 py-1 rounded-md">
+          <span className="text-[#2874F0] font-bold text-[15px] italic tracking-tight">Flipkart</span>
+        </Link>
+        <div className="flex items-center gap-3">
+          {/* Search toggle */}
+          <button onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)} className="p-1.5">
+            <Search size={20} className="text-gray-700" />
+          </button>
+          {/* Wishlist */}
+          <Link to="/wishlist" className="relative p-1.5">
+            <Heart size={20} className="text-gray-700" />
+            {getWishlistCount() > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-[#ff6161] text-white text-[9px] w-[15px] h-[15px] rounded-full flex items-center justify-center font-bold">{getWishlistCount() > 9 ? '9+' : getWishlistCount()}</span>
+            )}
+          </Link>
+          {/* Cart */}
+          <Link to="/cart" className="relative p-1.5">
+            <ShoppingCart size={20} className="text-gray-700" />
+            {getCartCount() > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-[#ff6161] text-white text-[9px] w-[15px] h-[15px] rounded-full flex items-center justify-center font-bold">{getCartCount()}</span>
+            )}
+          </Link>
+          {/* Hamburger */}
+          <button onClick={() => setIsMobileMenuOpen(true)} className="p-1.5">
+            <Menu size={22} className="text-gray-700" />
+          </button>
+        </div>
+      </div>
+
+      {/* ===== MOBILE SEARCH DROPDOWN ===== */}
+      {isMobileSearchOpen && (
+        <div className="md:hidden px-3 py-2 bg-white border-b border-[#f0f0f0] animate-fadeIn">
+          <div className="flex items-center bg-[#F0F5FF] rounded-lg h-[40px] overflow-hidden border border-[#2874F0]">
+            <div className="h-full px-3 text-gray-500 flex items-center justify-center bg-[#F0F5FF]">
+              <Search size={18} />
+            </div>
+            <input 
+              type="text" 
+              className="w-full h-full px-2 text-[14px] bg-[#F0F5FF] text-black outline-none placeholder-gray-500" 
+              placeholder="Search for Products, Brands and More"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              autoFocus
+            />
+            <button onClick={() => setIsMobileSearchOpen(false)} className="px-3 text-gray-500">
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ===== MOBILE DRAWER MENU ===== */}
+      <div className={`mobile-menu-overlay ${isMobileMenuOpen ? 'active' : ''}`} onClick={closeMobileMenu} />
+      <div className={`mobile-drawer ${isMobileMenuOpen ? 'active' : ''}`}>
+        <div className="bg-[#2874F0] text-white p-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <User size={22} />
+            <div>
+              {user ? (
+                <div className="text-[15px] font-medium">{user.name}</div>
+              ) : (
+                <Link to="/login" onClick={closeMobileMenu} className="text-[15px] font-medium">Login / Sign Up</Link>
+              )}
+            </div>
+          </div>
+          <button onClick={closeMobileMenu}>
+            <X size={22} />
+          </button>
+        </div>
+        <div className="flex flex-col py-2">
+          <Link to="/" onClick={closeMobileMenu} className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 text-[#212121]">
+            <UserCircle size={18} className="text-gray-500" />
+            <span className="text-[14px]">My Profile</span>
+          </Link>
+          <Link to="/orders" onClick={closeMobileMenu} className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 text-[#212121]">
+            <Package size={18} className="text-gray-500" />
+            <span className="text-[14px]">Orders</span>
+          </Link>
+          <Link to="/wishlist" onClick={closeMobileMenu} className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 text-[#212121]">
+            <Heart size={18} className="text-gray-500" />
+            <span className="text-[14px]">Wishlist</span>
+            {getWishlistCount() > 0 && <span className="text-[12px] text-[#878787]">({getWishlistCount()})</span>}
+          </Link>
+          <Link to="/cart" onClick={closeMobileMenu} className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 text-[#212121]">
+            <ShoppingCart size={18} className="text-gray-500" />
+            <span className="text-[14px]">Cart</span>
+            {getCartCount() > 0 && <span className="text-[12px] text-[#878787]">({getCartCount()})</span>}
+          </Link>
+          <div className="border-t border-gray-100 my-1" />
+          <Link to="/" onClick={closeMobileMenu} className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 text-[#212121]">
+            <PlusCircle size={18} className="text-gray-500" />
+            <span className="text-[14px]">Flipkart Plus Zone</span>
+          </Link>
+          <Link to="/" onClick={closeMobileMenu} className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 text-[#212121]">
+            <Store size={18} className="text-gray-500" />
+            <span className="text-[14px]">Become a Seller</span>
+          </Link>
+          <Link to="/" onClick={closeMobileMenu} className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 text-[#212121]">
+            <Gift size={18} className="text-gray-500" />
+            <span className="text-[14px]">Gift Cards</span>
+          </Link>
+          <Link to="/" onClick={closeMobileMenu} className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 text-[#212121]">
+            <Bell size={18} className="text-gray-500" />
+            <span className="text-[14px]">Notifications</span>
+          </Link>
+          <Link to="/" onClick={closeMobileMenu} className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 text-[#212121]">
+            <HeadphonesIcon size={18} className="text-gray-500" />
+            <span className="text-[14px]">24x7 Customer Care</span>
+          </Link>
+          {user && (
+            <>
+              <div className="border-t border-gray-100 my-1" />
+              <button 
+                onClick={() => { logout(); closeMobileMenu(); }}
+                className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 text-[#212121] w-full"
+              >
+                <LogOut size={18} className="text-[#ff6161]" />
+                <span className="text-[14px]">Logout</span>
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* ===== DESKTOP: Main Search & Nav Bar ===== */}
+      <div className="hidden md:flex container mx-auto max-w-[1248px] px-4 pb-2 items-center gap-6">
         
         {/* Search bar */}
         <div className="flex-grow flex items-center bg-[#F0F5FF] rounded-lg h-[44px] overflow-hidden border border-[#2874F0]">
@@ -234,7 +364,7 @@ const Header = () => {
 
       {/* CATEGORY NAV TAB BAR WITH ICONS */}
       <div className="bg-white border-t border-[#F0F0F0] border-b shadow-sm overflow-x-auto hide-scrollbar">
-        <div className="container mx-auto max-w-[1248px] px-4 flex items-end justify-between min-w-max">
+        <div className="container mx-auto max-w-[1248px] px-2 md:px-4 flex items-end justify-start md:justify-between min-w-max">
           {navCategories.map((cat, index) => {
             const isActive = (selectedCategory === cat.name || (selectedCategory === "All" && cat.name === "For You"));
             return (
@@ -244,26 +374,26 @@ const Header = () => {
                 setSelectedCategory(cat.name === "For You" ? "All" : cat.name);
                 navigate('/');
               }}
-              className={`flex flex-col items-center pt-3 pb-2 px-2 transition-all relative group`}
-              style={{ minWidth: '76px' }}
+              className={`flex flex-col items-center pt-2 md:pt-3 pb-1.5 md:pb-2 px-1.5 md:px-2 transition-all relative group`}
+              style={{ minWidth: '62px' }}
             >
                {/* Highlight Pill for Active Category */}
                {isActive && (
-                 <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[52px] h-[52px] bg-[#E8F0FE] rounded-xl -z-10"></div>
+                 <div className="absolute top-1.5 md:top-2 left-1/2 -translate-x-1/2 w-[44px] md:w-[52px] h-[44px] md:h-[52px] bg-[#E8F0FE] rounded-xl -z-10"></div>
                )}
                
               <img 
                  src={cat.icon} 
                  alt={cat.name} 
-                 className={`w-[24px] h-[24px] object-contain mb-1 transition-transform group-hover:scale-105`}
+                 className={`w-[20px] h-[20px] md:w-[24px] md:h-[24px] object-contain mb-0.5 md:mb-1 transition-transform group-hover:scale-105`}
               />
-              <span className={`text-[12px] whitespace-nowrap mt-1 ${isActive ? 'font-bold text-black' : 'font-medium text-[#212121]'}`}>
+              <span className={`text-[10px] md:text-[12px] whitespace-nowrap mt-0.5 md:mt-1 ${isActive ? 'font-bold text-black' : 'font-medium text-[#212121]'}`}>
                 {cat.name}
               </span>
               
               {/* Bottom blue bar for active state */}
               {isActive && (
-                <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#2874F0] rounded-t-md"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-[2px] md:h-[3px] bg-[#2874F0] rounded-t-md"></div>
               )}
             </button>
           )})}

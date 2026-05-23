@@ -20,7 +20,7 @@ const Cart = () => {
   }
 
   return (
-    <div className="bg-[#F1F3F6] min-h-screen py-8">
+    <div className="bg-[#F1F3F6] min-h-screen py-4 md:py-8">
       <div className="container mx-auto max-w-[1248px] px-2 flex flex-col lg:flex-row gap-4 relative">
         
         {/* LEFT 70% - Items */}
@@ -37,38 +37,38 @@ const Cart = () => {
                 const itemPrice = product.price || 0;
                 const itemMrp = product.mrp || product.originalPrice || itemPrice;
                 const itemDiscountPct = itemMrp > itemPrice ? Math.round(((itemMrp - itemPrice) / itemMrp) * 100) : 0;
-                const imageUrl = product.imageUrl || product.images?.[0] || product.image || 'https://via.placeholder.com/400x400?text=No+Image';
+                const imageUrl = product.imageUrl || product.images?.[0] || product.image || '/placeholder-product.png';
                 const productId = product.id || item.productId;
 
                 return (
-                  <div key={item.id || index} className="flex flex-col p-6 border-b border-[#f0f0f0]">
-                    <div className="flex gap-6">
-                      <div className="w-[112px] h-[112px] flex-shrink-0 flex items-center justify-center">
+                  <div key={item.id || index} className="flex flex-col p-4 md:p-6 border-b border-[#f0f0f0]">
+                    <div className="flex gap-3 md:gap-6">
+                      <div className="w-[80px] h-[80px] md:w-[112px] md:h-[112px] flex-shrink-0 flex items-center justify-center">
                         <img src={imageUrl} alt={product.name} className="max-w-full max-h-full object-contain" />
                       </div>
                       
                       <div className="flex-1 flex flex-col">
-                        <Link to={`/product/${productId}`} className="text-[16px] text-[#212121] hover:text-[#2874F0] mb-1">
+                        <Link to={`/product/${productId}`} className="text-[14px] md:text-[16px] text-[#212121] hover:text-[#2874F0] mb-1 line-clamp-2">
                           {product.name}
                         </Link>
                         
-                        <div className="text-[14px] text-[#878787] mb-4">
+                        <div className="text-[12px] md:text-[14px] text-[#878787] mb-2 md:mb-4">
                           {product.brand && <span>{product.brand}</span>}
                           {item.selectedColor && <span> • {item.selectedColor}</span>}
                           {item.selectedVariant && <span> • {item.selectedVariant}</span>}
                         </div>
                         
-                        <div className="flex items-center gap-3 mb-6">
+                        <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-6 flex-wrap">
                           {itemMrp > itemPrice && (
                             <span className="text-[14px] text-[#878787] line-through">₹{formatPrice(itemMrp)}</span>
                           )}
-                          <span className="text-[18px] font-medium text-[#212121]">₹{formatPrice(itemPrice)}</span>
+                          <span className="text-[16px] md:text-[18px] font-medium text-[#212121]">₹{formatPrice(itemPrice)}</span>
                           {itemDiscountPct > 0 && (
                             <span className="text-[14px] font-medium text-[#388E3C]">{itemDiscountPct}% Off</span>
                           )}
                         </div>
 
-                        <div className="flex items-center gap-6 mt-auto">
+                        <div className="flex items-center gap-4 md:gap-6 mt-auto flex-wrap">
                           <div className="flex items-center gap-2">
                             <div className="flex items-center gap-3">
                               <button 

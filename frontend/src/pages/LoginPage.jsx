@@ -135,24 +135,24 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="bg-[#F1F3F6] min-h-[calc(100vh-130px)] py-8 flex items-center justify-center">
-      <div className="bg-white shadow-sm flex rounded-sm overflow-hidden w-full max-w-[850px] min-h-[520px]">
+    <div className="bg-[#F1F3F6] min-h-[calc(100vh-130px)] py-4 md:py-8 flex items-center justify-center px-2 md:px-0">
+      <div className="bg-white shadow-sm flex flex-col md:flex-row rounded-sm overflow-hidden w-full max-w-[850px] min-h-0 md:min-h-[520px]">
         
         {/* Left Blue Panel */}
-        <div className="w-[40%] bg-[#2874f0] p-10 flex flex-col justify-between text-white relative">
+        <div className="w-full md:w-[40%] bg-[#2874f0] p-6 md:p-10 flex flex-col justify-between text-white relative min-h-[120px] md:min-h-0">
           <div>
-            <h1 className="text-[28px] font-medium mb-4">
+            <h1 className="text-[20px] md:text-[28px] font-medium mb-2 md:mb-4">
               {step === 'ENTER_NAME' || authMode === 'SIGNUP' 
                 ? "Looks like you're new here!" 
                 : "Login"}
             </h1>
-            <p className="text-[18px] text-[#dbdbdb] leading-relaxed pr-4">
+            <p className="text-[14px] md:text-[18px] text-[#dbdbdb] leading-relaxed pr-4 hidden sm:block">
               {step === 'ENTER_NAME' || authMode === 'SIGNUP' 
                 ? "Sign up with your mobile number to get started" 
                 : "Get access to your Orders, Wishlist and Recommendations"}
             </p>
           </div>
-          <div className="absolute bottom-0 left-0 w-full flex justify-center">
+          <div className="absolute bottom-0 left-0 w-full justify-center hidden md:flex">
             <img 
               src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/login_img_c4a81e.png" 
               alt="Login illustration" 
@@ -162,7 +162,7 @@ const LoginPage = () => {
         </div>
 
         {/* Right White Panel */}
-        <div className="w-[60%] p-12 relative flex flex-col justify-between">
+        <div className="w-full md:w-[60%] p-6 md:p-12 relative flex flex-col justify-between">
           <div>
             {error && (
               <div className="text-[#ff6161] text-[12px] mb-4 bg-[#ffebe6] p-2 rounded-sm border border-[#ff6161]">

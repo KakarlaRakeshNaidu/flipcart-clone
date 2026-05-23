@@ -5,55 +5,22 @@ const WishlistItem = ({ item, onRemove, onMoveToCart }) => {
   const isOutOfStock = !item.isAvailable;
   
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'flex-start',
-      padding: '20px 24px',
-      borderBottom: '1px solid #f0f0f0',
-      background: '#fff',
-    }}>
+    <div className="flex items-start p-4 md:p-5 border-b border-[#f0f0f0] bg-white gap-3 md:gap-5">
 
       {/* LEFT: Image */}
-      <Link to={`/product/${item.id}`} style={{ position: 'relative', width: 112, height: 112, minWidth: 112, flexShrink: 0, marginRight: 20 }}>
+      <Link to={`/product/${item.id}`} className="relative w-[80px] h-[80px] md:w-[112px] md:h-[112px] flex-shrink-0">
         <img
-          src={item.imageUrl}
+          src={item.imageUrl || '/placeholder-product.png'}
           alt={item.name}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            border: '1px solid #f0f0f0',
-            padding: 4,
-            background: '#fff',
-            filter: isOutOfStock ? 'grayscale(100%)' : 'none',
-            opacity: isOutOfStock ? 0.6 : 1,
-            display: 'block',
-          }}
+          className={`w-full h-full object-contain border border-[#f0f0f0] p-1 bg-white block ${isOutOfStock ? 'grayscale opacity-60' : ''}`}
           onError={(e) => { 
             e.currentTarget.onerror = null; 
             e.currentTarget.src = 'https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/placeholder_fcebae.svg'; 
           }}
         />
         {isOutOfStock && (
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'rgba(255,255,255,0.75)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            <span style={{
-              background: '#fff',
-              border: '1px solid #e0e0e0',
-              color: '#878787',
-              fontSize: 11,
-              fontWeight: 600,
-              padding: '3px 8px',
-              borderRadius: 2,
-              letterSpacing: 0.5,
-              textTransform: 'uppercase',
-            }}>
+          <div className="absolute inset-0 bg-white/75 flex items-center justify-center">
+            <span className="bg-white border border-[#e0e0e0] text-[#878787] text-[10px] md:text-[11px] font-semibold px-2 py-0.5 rounded-sm tracking-wider uppercase">
               Out of Stock
             </span>
           </div>
@@ -61,56 +28,36 @@ const WishlistItem = ({ item, onRemove, onMoveToCart }) => {
       </Link>
 
       {/* RIGHT: Details */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div className="flex-1 min-w-0">
 
         {/* Product Name */}
-        <Link to={`/product/${item.id}`} style={{ textDecoration: 'none' }}>
-          <p style={{
-            fontSize: 16,
-            fontWeight: 500,
-            color: '#212121',
-            lineHeight: 1.4,
-            margin: '0 0 6px 0',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}>
+        <Link to={`/product/${item.id}`} className="no-underline">
+          <p className="text-[14px] md:text-[16px] font-medium text-[#212121] leading-snug mb-1.5 line-clamp-2">
             {item.name}
           </p>
         </Link>
 
         {/* Rating Row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <span style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 3,
-            background: '#388e3c',
-            color: '#fff',
-            fontSize: 12,
-            fontWeight: 700,
-            padding: '2px 6px',
-            borderRadius: 3,
-          }}>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="inline-flex items-center gap-1 bg-[#388e3c] text-white text-[11px] md:text-[12px] font-bold px-1.5 py-0.5 rounded-sm">
             {item.rating} ★
           </span>
-          <span style={{ color: '#878787', fontSize: 12 }}>
+          <span className="text-[#878787] text-[11px] md:text-[12px]">
             ({Number(item.reviewCount || 0).toLocaleString('en-IN')})
           </span>
         </div>
 
         {/* Price Row */}
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
-          <span style={{ fontSize: 22, fontWeight: 700, color: '#212121' }}>
+        <div className="flex items-baseline gap-2 mb-1.5 flex-wrap">
+          <span className="text-[18px] md:text-[22px] font-bold text-[#212121]">
             ₹{Number(item.price || 0).toLocaleString('en-IN')}
           </span>
           {item.mrp && item.mrp > item.price && (
             <>
-              <span style={{ fontSize: 14, color: '#878787', textDecoration: 'line-through' }}>
+              <span className="text-[12px] md:text-[14px] text-[#878787] line-through">
                 ₹{Number(item.mrp).toLocaleString('en-IN')}
               </span>
-              <span style={{ fontSize: 14, color: '#388e3c', fontWeight: 500 }}>
+              <span className="text-[12px] md:text-[14px] text-[#388e3c] font-medium">
                 {Math.round(((item.mrp - item.price) / item.mrp) * 100)}% off
               </span>
             </>
@@ -119,51 +66,29 @@ const WishlistItem = ({ item, onRemove, onMoveToCart }) => {
 
         {/* Out of Stock text */}
         {isOutOfStock && (
-          <p style={{ color: '#ff6161', fontSize: 13, margin: '0 0 6px 0' }}>
+          <p className="text-[#ff6161] text-[12px] md:text-[13px] mb-1.5">
             Currently unavailable
           </p>
         )}
 
         {/* Seller */}
-        <p style={{ fontSize: 13, color: '#878787', margin: '0 0 14px 0' }}>
+        <p className="text-[12px] md:text-[13px] text-[#878787] mb-3">
           Seller: {item.seller || 'SuperComNet'}
         </p>
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+        <div className="flex items-center gap-4 md:gap-6 flex-wrap">
           <button
             onClick={() => !isOutOfStock && onMoveToCart(item.id)}
             disabled={isOutOfStock}
-            style={{
-              background: isOutOfStock ? '#e0e0e0' : '#ff9f00',
-              color: isOutOfStock ? '#9e9e9e' : '#fff',
-              border: 'none',
-              padding: '10px 20px',
-              fontSize: 14,
-              fontWeight: 500,
-              letterSpacing: 0.5,
-              textTransform: 'uppercase',
-              borderRadius: 2,
-              cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-              minWidth: 140,
-            }}
+            className={`${isOutOfStock ? 'bg-[#e0e0e0] text-[#9e9e9e] cursor-not-allowed' : 'bg-[#ff9f00] text-white cursor-pointer'} border-none py-2 md:py-2.5 px-4 md:px-5 text-[12px] md:text-[14px] font-medium tracking-wider uppercase rounded-sm min-w-[110px] md:min-w-[140px]`}
           >
             MOVE TO CART
           </button>
 
           <button
             onClick={() => onRemove(item.id)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#878787',
-              fontSize: 13,
-              cursor: 'pointer',
-              padding: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-            }}
+            className="bg-transparent border-none text-[#878787] text-[12px] md:text-[13px] cursor-pointer p-0 flex items-center gap-1"
           >
             ✕ Remove
           </button>

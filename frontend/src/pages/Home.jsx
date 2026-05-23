@@ -47,7 +47,7 @@ const Home = () => {
       <div className="container mx-auto max-w-[1248px] px-2 flex flex-col gap-4">
 
         {/* HERO BANNER CAROUSEL */}
-        <div className="relative w-full h-[250px] bg-white group overflow-hidden mt-4 shadow-sm rounded-sm">
+        <div className="relative w-full h-[150px] sm:h-[200px] md:h-[250px] bg-white group overflow-hidden mt-2 md:mt-4 shadow-sm rounded-sm">
           <div 
             className="flex h-full transition-transform duration-500 ease-in-out"
             style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -89,9 +89,9 @@ const Home = () => {
         </div>
         
         {/* AD TILES ROW */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
           {/* Tile 1 */}
-          <div className="bg-white rounded-sm shadow-sm h-[180px] flex flex-col cursor-pointer overflow-hidden group">
+          <div className="bg-white rounded-sm shadow-sm h-[140px] sm:h-[160px] md:h-[180px] flex flex-col cursor-pointer overflow-hidden group">
             <div className="flex-1 p-4 bg-[#f0f9f0] relative flex items-center justify-center overflow-hidden">
               <span className="absolute top-2 left-2 text-[#878787] text-[12px] font-bold">Minara</span>
               <img src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400" alt="Makeup" className="h-full object-contain group-hover:scale-105 transition-transform" />
@@ -101,7 +101,7 @@ const Home = () => {
             </div>
           </div>
           {/* Tile 2 */}
-          <div className="bg-white rounded-sm shadow-sm h-[180px] flex flex-col cursor-pointer overflow-hidden group">
+          <div className="bg-white rounded-sm shadow-sm h-[140px] sm:h-[160px] md:h-[180px] flex flex-col cursor-pointer overflow-hidden group">
             <div className="flex-1 p-4 bg-[#f1f3f6] relative flex items-center justify-center overflow-hidden">
               <span className="absolute top-2 left-2 text-[#878787] text-[12px] font-bold">HRX</span>
               <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400" alt="Shoes" className="h-full object-contain group-hover:scale-105 transition-transform" />
@@ -111,7 +111,7 @@ const Home = () => {
             </div>
           </div>
           {/* Tile 3 */}
-          <div className="bg-white rounded-sm shadow-sm h-[180px] flex flex-col cursor-pointer overflow-hidden group">
+          <div className="bg-white rounded-sm shadow-sm h-[140px] sm:h-[160px] md:h-[180px] flex flex-col cursor-pointer overflow-hidden group">
             <div className="flex-1 p-4 bg-[#eef5fc] relative flex items-center justify-center overflow-hidden">
               <span className="absolute top-2 left-2 text-[#878787] text-[12px] font-bold">Kids</span>
               <img src="https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=400" alt="Kids" className="h-full object-contain group-hover:scale-105 transition-transform" />
@@ -128,7 +128,7 @@ const Home = () => {
              <h2 className="text-[22px] font-medium mb-4 pb-2 border-b border-[#f0f0f0]">
                Showing {products.length} products
              </h2>
-             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
                {products.map(product => (
                  <div key={product.id} className="h-full">
                    <ProductCard product={product} />
@@ -141,14 +141,14 @@ const Home = () => {
             {/* Suggested for You */}
             <div className="bg-white shadow-sm flex flex-col">
               <div className="flex items-center justify-between p-4 border-b border-[#f0f0f0]">
-                <h2 className="text-[22px] font-medium">Suggested for You</h2>
+                <h2 className="text-[16px] md:text-[22px] font-medium">Suggested for You</h2>
                 <button className="bg-[#2874F0] text-white rounded-full p-1 shadow-md hover:bg-[#1c5fcc] transition-colors">
                   <ArrowRight size={20} />
                 </button>
               </div>
-              <div className="flex overflow-x-auto hide-scrollbar p-4 gap-4 snap-x">
+              <div className="flex overflow-x-auto hide-scrollbar p-2 md:p-4 gap-2 md:gap-4 snap-x">
                 {suggestedProducts.map(product => (
-                  <div key={product.id} className="min-w-[200px] w-[200px] h-[300px] snap-start flex-shrink-0">
+                  <div key={product.id} className="min-w-[150px] w-[150px] sm:min-w-[180px] sm:w-[180px] md:min-w-[200px] md:w-[200px] h-[250px] sm:h-[270px] md:h-[300px] snap-start flex-shrink-0">
                     <ProductCard product={product} />
                   </div>
                 ))}
@@ -158,14 +158,14 @@ const Home = () => {
             {/* Top Phones Right Now */}
             <div className="bg-white shadow-sm flex flex-col relative group">
               <div className="flex items-center justify-between p-4 border-b border-[#f0f0f0]">
-                <h2 className="text-[22px] font-medium">Top Phones Right Now</h2>
+                <h2 className="text-[16px] md:text-[22px] font-medium">Top Phones Right Now</h2>
                 <button className="bg-[#2874F0] text-white rounded-full p-1 shadow-md hover:bg-[#1c5fcc] transition-colors">
                   <ArrowRight size={20} />
                 </button>
               </div>
-              <div className="flex overflow-x-auto hide-scrollbar p-4 gap-4 snap-x" id="top-phones-scroll">
+              <div className="flex overflow-x-auto hide-scrollbar p-2 md:p-4 gap-2 md:gap-4 snap-x" id="top-phones-scroll">
                 {topPhones.map(product => (
-                  <div key={product.id} className="min-w-[200px] w-[200px] h-[300px] snap-start flex-shrink-0">
+                  <div key={product.id} className="min-w-[150px] w-[150px] sm:min-w-[180px] sm:w-[180px] md:min-w-[200px] md:w-[200px] h-[250px] sm:h-[270px] md:h-[300px] snap-start flex-shrink-0">
                     <ProductCard product={product} />
                   </div>
                 ))}
@@ -188,10 +188,10 @@ const Home = () => {
             {/* Add to your wishlist */}
             <div className="bg-white shadow-sm flex flex-col">
               <div className="bg-[#FFE500] p-4 flex items-center gap-3">
-                <h2 className="text-[22px] font-medium text-[#212121]">Add to your wishlist</h2>
+                <h2 className="text-[16px] md:text-[22px] font-medium text-[#212121]">Add to your wishlist</h2>
                 <div className="w-[12px] h-[12px] bg-[#2874F0] rounded-full animate-ping"></div>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 p-2 md:p-4">
                 {wishlistProducts.map(product => (
                   <div key={product.id} className="h-full">
                     <ProductCard product={product} />

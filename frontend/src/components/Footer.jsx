@@ -4,7 +4,7 @@ import { Briefcase, HelpCircle, Gift } from 'lucide-react';
 const Footer = () => {
   return (
     <footer className="bg-[#172337] text-white">
-      <div className="container mx-auto max-w-[1248px] px-8 py-10 flex flex-wrap justify-between border-b border-[#454d5e]">
+      <div className="container mx-auto max-w-[1248px] px-4 md:px-8 py-6 md:py-10 flex flex-wrap justify-between border-b border-[#454d5e] gap-y-4 md:gap-y-0">
         <div className="flex flex-col gap-2 w-[50%] md:w-[20%]">
           <h4 className="text-[#878787] text-[12px] font-medium uppercase mb-2">About</h4>
           <ul className="flex flex-col gap-1 text-[12px] font-medium text-white">
@@ -52,7 +52,7 @@ const Footer = () => {
           </p>
         </div>
       </div>
-      <div className="container mx-auto max-w-[1248px] px-8 py-6 flex flex-wrap items-center justify-between gap-4">
+      <div className="container mx-auto max-w-[1248px] px-4 md:px-8 py-4 md:py-6 flex flex-col md:flex-row flex-wrap items-center justify-between gap-3 md:gap-4">
         <div className="flex flex-wrap items-center gap-6 text-[12px] text-white">
           <a href="#" className="flex items-center gap-2 hover:underline"><Briefcase size={14} color="#ff9f00" /> Become a Seller</a>
           <a href="#" className="flex items-center gap-2 hover:underline"><Gift size={14} color="#ff9f00" /> Gift Cards</a>

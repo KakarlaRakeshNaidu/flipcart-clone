@@ -24,13 +24,13 @@ const OrderCard = ({ order }) => {
   }
 
   return (
-    <div className="bg-white rounded-sm shadow-[0_2px_4px_0_rgba(0,0,0,0.08)] border border-[#e0e0e0] hover:shadow-md transition-shadow p-4 md:p-6 flex flex-col md:flex-row items-center gap-4">
+    <div className="bg-white rounded-sm shadow-[0_2px_4px_0_rgba(0,0,0,0.08)] border border-[#e0e0e0] hover:shadow-md transition-shadow p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4">
       
       {/* Product Info (Fixed width) */}
       <div className="flex gap-4 w-full md:w-[220px] md:flex-[0_0_220px] shrink-0">
-        <Link to={`/orders/${order.id}`} className="w-[80px] h-[80px] shrink-0">
+        <Link to={`/orders/${order.id}`} className="w-[60px] h-[60px] md:w-[80px] md:h-[80px] shrink-0">
           <img 
-            src={item.images?.[0] || item.image || '/placeholder-product.png'} 
+            src={item.imageUrl || item.images?.[0] || item.image || '/placeholder-product.png'} 
             alt={item.name} 
             className="w-full h-full object-contain" 
             onError={(e) => { e.target.src = '/placeholder-product.png'; }}
@@ -89,7 +89,7 @@ const OrderCard = ({ order }) => {
       </div>
 
       {/* Actions (Fixed width) */}
-      <div className="w-full md:flex-[0_0_240px] shrink-0 flex flex-col items-end gap-3 text-right">
+      <div className="w-full md:flex-[0_0_240px] shrink-0 flex flex-row md:flex-col items-start md:items-end gap-2 md:gap-3 text-left md:text-right">
         {status === 'delivered' ? (
           <div className="flex flex-col md:flex-row items-end md:items-center gap-2">
             <button className="flex items-center gap-1 border border-[#2874f0] text-[#2874f0] bg-white px-[14px] py-[6px] text-[13px] rounded-sm font-medium whitespace-nowrap">

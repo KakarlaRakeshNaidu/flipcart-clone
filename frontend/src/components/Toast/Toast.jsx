@@ -21,7 +21,8 @@ const Toast = () => {
       fontSize: 14,
       zIndex: 9999,
       pointerEvents: 'none',
-      whiteSpace: 'nowrap',
+      maxWidth: 'calc(100vw - 32px)',
+      textAlign: 'center',
       animation: 'toastIn 0.25s ease-out',
     }}>
       {toast.message}

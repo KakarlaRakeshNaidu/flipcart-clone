@@ -122,7 +122,7 @@ const Checkout = () => {
   const formatPrice = (n) => n ? n.toLocaleString('en-IN') : '0';
 
   return (
-    <div className="bg-[#F1F3F6] min-h-screen py-8">
+    <div className="bg-[#F1F3F6] min-h-screen py-4 md:py-8">
       <div className="container mx-auto max-w-[1248px] px-2 flex flex-col lg:flex-row gap-4">
         
         {/* LEFT - Stepper */}
@@ -163,9 +163,9 @@ const Checkout = () => {
             </div>
             
             {currentStep === 2 && (
-              <div className="p-6 pl-[64px]">
-                <form className="flex flex-col gap-4 max-w-[600px]" onSubmit={handleAddressSubmit}>
-                  <div className="flex gap-4">
+              <div className="p-4 md:p-6 pl-4 md:pl-[64px]">
+                <form className="flex flex-col gap-3 md:gap-4 max-w-[600px]" onSubmit={handleAddressSubmit}>
+                  <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                     <div className="flex-1 relative">
                       <input 
                         required type="text" 
@@ -203,7 +203,7 @@ const Checkout = () => {
                     <label htmlFor="email" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">Email Address</label>
                   </div>
                   
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                     <div className="flex-1 relative">
                       <input 
                         required type="text" 
@@ -241,7 +241,7 @@ const Checkout = () => {
                     <label htmlFor="address" className="absolute left-3 -top-2.5 bg-white px-1 text-[12px] text-[#878787] transition-all peer-placeholder-shown:text-[14px] peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-[12px] peer-focus:text-[#2874F0]">Address (Area and Street)</label>
                   </div>
                   
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                     <div className="flex-1 relative">
                       <input 
                         required type="text" 
@@ -276,7 +276,7 @@ const Checkout = () => {
             )}
             
             {currentStep > 2 && savedAddress && (
-              <div className="p-4 px-6 pl-[64px] pb-6">
+              <div className="p-4 px-4 md:px-6 pl-4 md:pl-[64px] pb-6">
                 <div className="flex gap-2">
                   <span className="font-medium text-[14px]">{savedAddress.name}</span>
                   <span className="text-[14px]">{savedAddress.address}, {savedAddress.locality}, {savedAddress.city}, {savedAddress.state} - <span className="font-medium">{savedAddress.pincode}</span></span>
@@ -309,14 +309,14 @@ const Checkout = () => {
               <div>
                 {cartItems.map((item, idx) => {
                   const product = item.product || item;
-                  const imageUrl = product.imageUrl || product.images?.[0] || product.image || 'https://via.placeholder.com/400x400?text=No+Image';
+                  const imageUrl = product.imageUrl || product.images?.[0] || product.image || '/placeholder-product.png';
                   const itemPrice = product.price || 0;
                   const itemMrp = product.mrp || product.originalPrice || itemPrice;
                   const discountPct = itemMrp > itemPrice ? Math.round(((itemMrp - itemPrice) / itemMrp) * 100) : 0;
 
                   return (
-                    <div key={item.id || idx} className="p-6 flex gap-6 border-b border-[#f0f0f0]">
-                      <div className="w-[100px] h-[100px] flex-shrink-0 flex items-center justify-center">
+                    <div key={item.id || idx} className="p-4 md:p-6 flex gap-3 md:gap-6 border-b border-[#f0f0f0]">
+                      <div className="w-[70px] h-[70px] md:w-[100px] md:h-[100px] flex-shrink-0 flex items-center justify-center">
                         <img src={imageUrl} alt={product.name} className="max-w-full max-h-full object-contain" />
                       </div>
                       <div className="flex flex-col gap-2 flex-grow">
@@ -338,7 +338,7 @@ const Checkout = () => {
                   );
                 })}
                 
-                <div className="p-4 px-6 border-t border-[#f0f0f0] flex justify-between items-center bg-white shadow-[0_-2px_10px_0_rgba(0,0,0,0.05)]">
+                <div className="p-3 md:p-4 px-4 md:px-6 border-t border-[#f0f0f0] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white shadow-[0_-2px_10px_0_rgba(0,0,0,0.05)]">
                   <div>
                     <div className="text-[14px]">Order confirmation email will be sent to your registered email ID</div>
                   </div>
@@ -353,7 +353,7 @@ const Checkout = () => {
             )}
             
             {currentStep > 3 && (
-              <div className="p-4 px-6 pl-[64px] pb-6">
+              <div className="p-4 px-4 md:px-6 pl-4 md:pl-[64px] pb-6">
                 <span className="text-[14px] font-medium">{getCartCount()} Item(s)</span>
               </div>
             )}
@@ -369,7 +369,7 @@ const Checkout = () => {
             </div>
             
             {currentStep === 4 && (
-              <div className="p-6 pl-[64px]">
+              <div className="p-4 md:p-6 pl-4 md:pl-[64px]">
                 <div className="flex flex-col gap-4">
                   <label className="flex items-center gap-3 cursor-pointer">
                     <input 

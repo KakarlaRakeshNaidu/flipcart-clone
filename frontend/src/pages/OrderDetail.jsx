@@ -123,9 +123,9 @@ const OrderDetail = () => {
           
           {/* Left Column: Product Summary */}
           <div className="flex-1 p-6 border-b md:border-b-0 md:border-r border-[#f0f0f0]">
-            <div className="flex gap-6 mb-8">
-              <div className="w-[100px] h-[100px] shrink-0">
-                <img src={item?.images?.[0] || item?.image || '/placeholder-product.png'} alt={item?.name} className="w-full h-full object-contain" />
+          <div className="flex gap-3 md:gap-6 mb-6 md:mb-8">
+              <div className="w-[70px] h-[70px] md:w-[100px] md:h-[100px] shrink-0">
+                <img src={item?.imageUrl || item?.images?.[0] || item?.image || '/placeholder-product.png'} alt={item?.name} className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
                 <div className="text-[16px] text-[#212121] hover:text-[#2874f0] cursor-pointer mb-2">
