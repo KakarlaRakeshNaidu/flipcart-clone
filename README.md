@@ -50,7 +50,7 @@ A full-stack platform that enforces data integrity at every layer:
 
 | Service  | URL |
 |----------|-----|
-| Frontend | Deployed on Vercel (Vite + React SPA) |
+| Frontend | [https://flipcart-clone-4vya.vercel.app](https://flipcart-clone-4vya.vercel.app) |
 | Backend  | `https://flipcart-clone-nu.vercel.app` (Express serverless) |
 
 ---
