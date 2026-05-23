@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { Loader2 } from 'lucide-react';
 
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, getCartTotal, getCartOriginalTotal, getCartCount, loading } = useCart();
@@ -14,8 +13,7 @@ const Cart = () => {
 
   if (loading) {
     return (
-      <div className="bg-[#F1F3F6] min-h-screen py-8 flex flex-col items-center justify-center">
-        <Loader2 className="animate-spin text-[#2874f0] mb-4" size={40} />
+      <div className="bg-[#F1F3F6] min-h-screen py-8 flex items-center justify-center">
         <div className="text-[18px] text-[#878787]">Loading your cart...</div>
       </div>
     );

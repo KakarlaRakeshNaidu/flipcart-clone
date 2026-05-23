@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Loader2 } from 'lucide-react';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -195,13 +194,9 @@ const LoginPage = () => {
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full bg-[#fb641b] text-white py-3 rounded-sm font-medium text-[15px] mt-2 shadow-sm disabled:opacity-70 flex justify-center items-center gap-2"
+                  className="w-full bg-[#fb641b] text-white py-3 rounded-sm font-medium text-[15px] mt-2 shadow-sm disabled:opacity-70"
                 >
-                  {loading ? (
-                    <><Loader2 className="animate-spin" size={20} /> Processing...</>
-                  ) : (
-                    authMode === 'SIGNUP' ? 'CONTINUE' : 'Request OTP'
-                  )}
+                  {loading ? 'Processing...' : (authMode === 'SIGNUP' ? 'CONTINUE' : 'Request OTP')}
                 </button>
 
                 {authMode === 'SIGNUP' && (
@@ -245,9 +240,9 @@ const LoginPage = () => {
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full bg-[#2874F0] text-white py-3 rounded-sm font-medium text-[15px] shadow-sm disabled:opacity-70 flex justify-center items-center gap-2"
+                  className="w-full bg-[#2874F0] text-white py-3 rounded-sm font-medium text-[15px] shadow-sm disabled:opacity-70"
                 >
-                  {loading ? <><Loader2 className="animate-spin" size={20} /> Verifying...</> : 'Verify'}
+                  {loading ? 'Verifying...' : 'Verify'}
                 </button>
               </form>
             )}
@@ -272,9 +267,9 @@ const LoginPage = () => {
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full bg-[#fb641b] text-white py-3 rounded-sm font-medium text-[15px] mt-6 shadow-sm disabled:opacity-70 flex justify-center items-center gap-2"
+                  className="w-full bg-[#fb641b] text-white py-3 rounded-sm font-medium text-[15px] mt-6 shadow-sm disabled:opacity-70"
                 >
-                  {loading ? <><Loader2 className="animate-spin" size={20} /> Creating Account...</> : 'CONTINUE'}
+                  {loading ? 'Creating Account...' : 'CONTINUE'}
                 </button>
               </form>
             )}
