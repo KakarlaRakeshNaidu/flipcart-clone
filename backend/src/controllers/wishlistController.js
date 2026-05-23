@@ -1,25 +1,11 @@
 // backend/src/controllers/wishlistController.js
+// Multi-user wishlist — uses req.userId from JWT auth middleware.
 const prisma = require('../lib/prisma');
-
-let _defaultUserId = null;
-
-async function getDefaultUserId() {
-  if (_defaultUserId) return _defaultUserId;
-  // Use orderBy to ensure we always get the EXACT same default user across serverless lambdas
-  const user = await prisma.user.findFirst({
-    orderBy: { createdAt: 'asc' }
-  });
-  if (!user) {
-    throw new Error('No users found. Please run the seed script: npm run db:seed');
-  }
-  _defaultUserId = user.id;
-  return _defaultUserId;
-}
 
 // Get all wishlist items for the logged-in user
 exports.getWishlist = async (req, res, next) => {
   try {
-    const userId = await getDefaultUserId();
+    const userId = req.userId;
     const items = await prisma.wishlistItem.findMany({
       where: { userId },
       include: { product: true },
@@ -40,7 +26,7 @@ exports.getWishlist = async (req, res, next) => {
 // Add a product to the user's wishlist
 exports.addToWishlist = async (req, res, next) => {
   try {
-    const userId = await getDefaultUserId();
+    const userId = req.userId;
     const productId = String(req.body.productId);
 
     if (!productId || productId === 'undefined') {
@@ -80,7 +66,7 @@ exports.addToWishlist = async (req, res, next) => {
 // Remove a product from the user's wishlist
 exports.removeFromWishlist = async (req, res, next) => {
   try {
-    const userId = await getDefaultUserId();
+    const userId = req.userId;
     const productId = String(req.params.productId);
 
     await prisma.wishlistItem.deleteMany({
@@ -99,7 +85,7 @@ exports.removeFromWishlist = async (req, res, next) => {
 // Clear the entire wishlist
 exports.clearWishlist = async (req, res, next) => {
   try {
-    const userId = await getDefaultUserId();
+    const userId = req.userId;
 
     await prisma.wishlistItem.deleteMany({
       where: { userId }

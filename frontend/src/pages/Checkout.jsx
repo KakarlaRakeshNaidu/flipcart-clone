@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Loader2 } from 'lucide-react';
+import { Loader2, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { orderApi } from '../services/api';
 
 const Checkout = () => {
   const { cartItems, getCartTotal, getCartCount, fetchCart, clearCart } = useCart();
   const navigate = useNavigate();
   
+  const { user } = useAuth();
+  
   const [currentStep, setCurrentStep] = useState(2);
   const [address, setAddress] = useState({
     name: '',
     phone: '',
-    email: '',
+    email: user?.email || '',
     pincode: '',
     locality: '',
     address: '',
@@ -190,9 +193,10 @@ const Checkout = () => {
                   <div className="relative">
                     <input 
                       required type="email" 
-                      className="w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent" 
+                      className={`w-full border border-[#e0e0e0] p-3 text-[14px] outline-none focus:border-[#2874F0] peer placeholder-transparent ${user?.email ? 'bg-[#f0f0f0] cursor-not-allowed' : ''}`} 
                       placeholder="Email Address" 
                       value={address.email} 
+                      readOnly={!!user?.email}
                       onChange={e => setAddress({...address, email: e.target.value})} 
                       id="email"
                     />

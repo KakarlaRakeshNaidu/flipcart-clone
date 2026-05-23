@@ -23,6 +23,18 @@ const api = axios.create({
   timeout: 10000,  // 10 second timeout
 })
 
+// ─── Request Interceptor ──────────────────────────────────
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 // ─── Response Interceptor ──────────────────────────────────
 // Normalize error messages from the backend
 api.interceptors.response.use(

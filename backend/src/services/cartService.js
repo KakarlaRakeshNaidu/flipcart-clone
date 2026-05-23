@@ -1,32 +1,14 @@
 // backend/src/services/cartService.js
-// Business logic for shopping cart operations
+// Business logic for shopping cart operations — multi-user aware
 
 const prisma = require('../lib/prisma');
 
-// ─── Default User Helper ──────────────────────────────────
-// Per the assignment spec, we use a single default user.
-// This is fetched once and cached in memory.
-let _defaultUserId = null;
-
-async function getDefaultUserId() {
-  if (_defaultUserId) return _defaultUserId;
-  // Use orderBy to ensure we always get the EXACT same default user across serverless lambdas
-  const user = await prisma.user.findFirst({
-    orderBy: { createdAt: 'asc' }
-  });
-  if (!user) {
-    throw new Error('No users found. Please run the seed script: npm run db:seed');
-  }
-  _defaultUserId = user.id;
-  return _defaultUserId;
-}
-
 class CartService {
   /**
-   * Get the full cart for the default user.
+   * Get the full cart for the specified user.
+   * @param {string} userId
    */
-  async getCart() {
-    const userId = await getDefaultUserId();
+  async getCart(userId) {
     const cartItems = await prisma.cartItem.findMany({
       where: { userId },
       include: {
@@ -60,10 +42,11 @@ class CartService {
 
   /**
    * Add a product to the cart or increment quantity if already exists.
+   * @param {string} userId
+   * @param {string} productId
+   * @param {number} quantity
    */
-  async addToCart(productId, quantity = 1) {
-    const userId = await getDefaultUserId();
-
+  async addToCart(userId, productId, quantity = 1) {
     // Validate product exists and is in stock
     const product = await prisma.product.findUnique({ where: { id: productId } });
     if (!product) {
@@ -93,10 +76,11 @@ class CartService {
   /**
    * Update the quantity of a specific cart item.
    * If quantity becomes 0, remove the item.
+   * @param {string} userId
+   * @param {string} cartItemId
+   * @param {number} quantity
    */
-  async updateCartItem(cartItemId, quantity) {
-    const userId = await getDefaultUserId();
-
+  async updateCartItem(userId, cartItemId, quantity) {
     const cartItem = await prisma.cartItem.findUnique({
       where: { id: cartItemId },
     });
@@ -121,10 +105,10 @@ class CartService {
 
   /**
    * Remove a specific item from the cart.
+   * @param {string} userId
+   * @param {string} cartItemId
    */
-  async removeFromCart(cartItemId) {
-    const userId = await getDefaultUserId();
-
+  async removeFromCart(userId, cartItemId) {
     const cartItem = await prisma.cartItem.findUnique({
       where: { id: cartItemId },
     });
@@ -141,9 +125,9 @@ class CartService {
 
   /**
    * Clear all items from the cart.
+   * @param {string} userId
    */
-  async clearCart() {
-    const userId = await getDefaultUserId();
+  async clearCart(userId) {
     await prisma.cartItem.deleteMany({ where: { userId } });
     return { message: 'Cart cleared' };
   }

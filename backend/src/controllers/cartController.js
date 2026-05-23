@@ -1,10 +1,11 @@
 // backend/src/controllers/cartController.js
+// Passes req.userId (set by authMiddleware) to cartService methods.
 const cartService = require('../services/cartService');
 
 class CartController {
   async getCart(req, res, next) {
     try {
-      const cart = await cartService.getCart();
+      const cart = await cartService.getCart(req.userId);
       res.json({ success: true, cart });
     } catch (error) {
       next(error);
@@ -14,7 +15,7 @@ class CartController {
   async addToCart(req, res, next) {
     try {
       const { productId, quantity } = req.body;
-      const cartItem = await cartService.addToCart(productId, quantity);
+      const cartItem = await cartService.addToCart(req.userId, productId, quantity);
       res.status(201).json({ success: true, cartItem, message: 'Added to cart' });
     } catch (error) {
       next(error);
@@ -24,7 +25,7 @@ class CartController {
   async updateCartItem(req, res, next) {
     try {
       const { cartItemId, quantity } = req.body;
-      const result = await cartService.updateCartItem(cartItemId, quantity);
+      const result = await cartService.updateCartItem(req.userId, cartItemId, quantity);
       res.json({ success: true, ...result });
     } catch (error) {
       next(error);
@@ -34,7 +35,7 @@ class CartController {
   async removeFromCart(req, res, next) {
     try {
       const { cartItemId } = req.body;
-      const result = await cartService.removeFromCart(cartItemId);
+      const result = await cartService.removeFromCart(req.userId, cartItemId);
       res.json({ success: true, ...result });
     } catch (error) {
       next(error);
@@ -43,7 +44,7 @@ class CartController {
 
   async clearCart(req, res, next) {
     try {
-      const result = await cartService.clearCart();
+      const result = await cartService.clearCart(req.userId);
       res.json({ success: true, ...result });
     } catch (error) {
       next(error);

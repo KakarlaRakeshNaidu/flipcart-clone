@@ -37,8 +37,8 @@ function App() {
                     <Routes>
                       <Route path="/" element={<Home />} />
                       <Route path="/product/:id" element={<ProductDetail />} />
-                      <Route path="/cart" element={<Cart />} />
-                      <Route path="/checkout" element={<Checkout />} />
+                      <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+                      <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
                       <Route path="/confirmation" element={<Confirmation />} />
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />

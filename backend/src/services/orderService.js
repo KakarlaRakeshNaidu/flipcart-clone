@@ -1,23 +1,8 @@
 // backend/src/services/orderService.js
-// Business logic for order placement — uses prisma.$transaction() for atomicity
+// Business logic for order placement — multi-user aware
+// Uses prisma.$transaction() for atomicity
 
 const prisma = require('../lib/prisma');
-
-// ─── Default User Helper (same pattern as cartService) ────
-let _defaultUserId = null;
-
-async function getDefaultUserId() {
-  if (_defaultUserId) return _defaultUserId;
-  // Use orderBy to ensure we always get the EXACT same default user across serverless lambdas
-  const user = await prisma.user.findFirst({
-    orderBy: { createdAt: 'asc' }
-  });
-  if (!user) {
-    throw new Error('No users found. Please run: npm run db:seed');
-  }
-  _defaultUserId = user.id;
-  return _defaultUserId;
-}
 
 class OrderService {
   /**
@@ -27,12 +12,12 @@ class OrderService {
    * order creation AND cart clearing happen in the same database
    * transaction. If either fails, the entire operation is rolled back.
    *
+   * @param {string} userId
    * @param {string} shippingAddress
    * @param {string} paymentMethod
    */
-  async placeOrder(shippingAddress, paymentMethod = 'COD') {
+  async placeOrder(userId, shippingAddress, paymentMethod = 'COD') {
     console.log('[OrderService] placeOrder started');
-    const userId = await getDefaultUserId();
     console.log(`[OrderService] Using userId: ${userId}`);
 
     // 1. Fetch cart items (outside transaction — read-only)
@@ -123,10 +108,10 @@ class OrderService {
   }
 
   /**
-   * Get all orders for the default user.
+   * Get all orders for the specified user.
+   * @param {string} userId
    */
-  async getOrders() {
-    const userId = await getDefaultUserId();
+  async getOrders(userId) {
     return await prisma.order.findMany({
       where: { userId },
       include: {
@@ -139,10 +124,11 @@ class OrderService {
   }
 
   /**
-   * Get a single order by ID.
+   * Get a single order by ID (only if it belongs to the user).
+   * @param {string} userId
+   * @param {string} orderId
    */
-  async getOrderById(orderId) {
-    const userId = await getDefaultUserId();
+  async getOrderById(userId, orderId) {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {

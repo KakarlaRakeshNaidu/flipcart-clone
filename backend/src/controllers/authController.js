@@ -1,9 +1,10 @@
 // backend/src/controllers/authController.js
+// OTP-based authentication — sends OTP via Nodemailer (Gmail SMTP)
 const jwt = require('jsonwebtoken');
-const { Resend } = require('resend');
 const prisma = require('../lib/prisma');
+const transporter = require('../lib/mailer');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit OTP
@@ -33,9 +34,15 @@ exports.sendOtp = async (req, res, next) => {
       }
     });
 
-    // Send email using Resend
-    const { error } = await resend.emails.send({
-      from: 'Flipkart Clone <onboarding@resend.dev>',
+    // Send email using Nodemailer (Gmail)
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.warn('[Auth] Missing EMAIL_USER or EMAIL_PASS. OTP created in DB but email not sent.');
+      // Still return success so dev/test can look up OTP from DB
+      return res.json({ success: true, message: 'OTP generated (email credentials not configured)' });
+    }
+
+    await transporter.sendMail({
+      from: `"Flipkart Clone" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Your Flipkart Verification Code',
       html: `
@@ -51,14 +58,10 @@ exports.sendOtp = async (req, res, next) => {
       `
     });
 
-    if (error) {
-      console.error('Resend error:', error);
-      return res.status(500).json({ success: false, message: 'Failed to send OTP email' });
-    }
-
     res.json({ success: true, message: 'OTP sent successfully' });
 
   } catch (err) {
+    console.error('[Auth] sendOtp error:', err);
     next(err);
   }
 };
@@ -91,7 +94,7 @@ exports.verifyOtp = async (req, res, next) => {
     await prisma.otp.delete({ where: { id: otpRecord.id } });
 
     if (user) {
-      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '7d' });
+      const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
       return res.json({ 
         success: true, 
         isNewUser: false, 
@@ -99,7 +102,7 @@ exports.verifyOtp = async (req, res, next) => {
         user: { id: user.id, name: user.name, email: user.email } 
       });
     } else {
-      const signupToken = jwt.sign({ email }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '15m' });
+      const signupToken = jwt.sign({ email }, JWT_SECRET, { expiresIn: '15m' });
       return res.json({
         success: true,
         isNewUser: true,
@@ -122,7 +125,7 @@ exports.register = async (req, res, next) => {
 
     let decoded;
     try {
-      decoded = jwt.verify(signupToken, process.env.JWT_SECRET || 'fallback_secret');
+      decoded = jwt.verify(signupToken, JWT_SECRET);
     } catch (err) {
       return res.status(400).json({ success: false, message: 'Invalid or expired signup token' });
     }
@@ -140,7 +143,7 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
     
     res.json({
       success: true,

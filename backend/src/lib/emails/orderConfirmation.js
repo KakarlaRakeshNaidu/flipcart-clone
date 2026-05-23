@@ -1,20 +1,8 @@
 // backend/src/lib/emails/orderConfirmation.js
-// Order confirmation emails via Nodemailer (Gmail).
+// Order confirmation emails via shared Nodemailer transporter (Gmail).
 
-const nodemailer = require('nodemailer');
 const prisma = require('../prisma');
-
-// Create a Nodemailer transporter using Gmail
-// In production/Vercel, you should set EMAIL_USER and EMAIL_PASS environment variables
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-console.log(`[Email Init] Nodemailer transporter created. EMAIL_USER: ${process.env.EMAIL_USER ? process.env.EMAIL_USER : '(NOT SET)'}, EMAIL_PASS: ${process.env.EMAIL_PASS ? '****' + process.env.EMAIL_PASS.slice(-4) : '(NOT SET)'}`);
+const transporter = require('../mailer');
 
 async function sendOrderConfirmationEmail(orderId, userId, providedEmail = null) {
   try {
@@ -79,4 +67,4 @@ async function sendOrderConfirmationEmail(orderId, userId, providedEmail = null)
   }
 }
 
-module.exports = { sendOrderConfirmationEmail }; // NEW
+module.exports = { sendOrderConfirmationEmail };

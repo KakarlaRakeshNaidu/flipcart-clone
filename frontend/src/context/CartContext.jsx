@@ -1,146 +1,107 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { cartApi } from '../services/api';
+import { useAuth } from './AuthContext';
+import { useToast } from './ToastContext';
 
 const CartContext = createContext();
-
-// ─── localStorage helpers ──────────────────────────────────
-function loadLocalCart() {
-  try {
-    return JSON.parse(localStorage.getItem('flipkart_cart') || '[]');
-  } catch { return []; }
-}
-function saveLocalCart(items) {
-  localStorage.setItem('flipkart_cart', JSON.stringify(items));
-}
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  // Track whether backend is available
-  const backendAvailable = useRef(null); // null = unknown, true/false after first call
+  
+  const { user } = useAuth();
+  const { showToast } = useToast();
 
-  // ─── Fetch cart (try backend, fallback to localStorage) ──
   const fetchCart = useCallback(async () => {
-    // If we already know backend is down, skip
-    if (backendAvailable.current === false) {
-      setCartItems(loadLocalCart());
+    if (!user) {
+      setCartItems([]);
       setLoading(false);
       return;
     }
+    
     try {
+      setLoading(true);
       const data = await cartApi.getCart();
-      console.log('[CartContext] fetchCart raw response:', JSON.stringify(data).substring(0, 500));
-      backendAvailable.current = true;
       const cart = data.cart || data;
-      console.log('[CartContext] fetchCart items count:', (cart.items || []).length);
       setCartItems(cart.items || []);
     } catch (error) {
-      console.warn('Backend cart unavailable, using localStorage:', error.message);
-      backendAvailable.current = false;
-      setCartItems(loadLocalCart());
+      console.error('Failed to fetch cart:', error.message);
+      if (error.message.includes('401') || error.message.includes('Authentication required')) {
+        setCartItems([]);
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
-  useEffect(() => { fetchCart(); }, [fetchCart]);
+  useEffect(() => { 
+    fetchCart(); 
+  }, [fetchCart]);
 
-  // ─── Add to cart ─────────────────────────────────────────
+  const requireLogin = () => {
+    if (!user) {
+      showToast('Please login to continue', 'error');
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1500);
+      return true;
+    }
+    return false;
+  };
+
   const addToCart = async (productOrId, quantity = 1) => {
+    if (requireLogin()) return;
+    
     const isProduct = typeof productOrId === 'object';
     const productId = isProduct ? productOrId.id : productOrId;
 
-    // Try backend first
-    console.log('[CartContext] addToCart called with productId:', productId, 'backendAvailable:', backendAvailable.current);
-    if (backendAvailable.current !== false) {
-      try {
-        const result = await cartApi.addToCart(String(productId), quantity);
-        console.log('[CartContext] addToCart backend success:', JSON.stringify(result).substring(0, 300));
-        backendAvailable.current = true;
-        await fetchCart();
-        console.log('[CartContext] fetchCart after addToCart done, cartItems length:', cartItems.length);
-        return;
-      } catch (error) {
-        // If it's a genuine backend error (not network), don't fallback
-        if (backendAvailable.current === true) {
-          console.error('Failed to add to cart:', error.message);
-          throw error;
-        }
-        backendAvailable.current = false;
-      }
+    try {
+      await cartApi.addToCart(String(productId), quantity);
+      await fetchCart();
+      showToast('Added to cart', 'success');
+    } catch (error) {
+      console.error('Failed to add to cart:', error.message);
+      showToast('Failed to add to cart', 'error');
     }
-
-    // localStorage fallback
-    const product = isProduct ? productOrId : null;
-    const items = loadLocalCart();
-    const existingIdx = items.findIndex(i => String(i.productId || i.id) === String(productId));
-    if (existingIdx >= 0) {
-      items[existingIdx].quantity += quantity;
-    } else {
-      items.push({
-        id: 'local_' + Date.now(),
-        productId: productId,
-        quantity,
-        product: product || { id: productId, name: 'Product', price: 0 },
-      });
-    }
-    saveLocalCart(items);
-    setCartItems(items);
   };
 
-  // ─── Update quantity ─────────────────────────────────────
   const updateQuantity = async (cartItemId, newQuantity) => {
+    if (requireLogin()) return;
     if (newQuantity < 1) return;
-    if (backendAvailable.current === true) {
-      try {
-        await cartApi.updateCartItem(cartItemId, newQuantity);
-        await fetchCart();
-        return;
-      } catch (error) {
-        console.error('Failed to update cart item:', error.message);
-      }
-    }
-    // localStorage fallback
-    const items = loadLocalCart();
-    const item = items.find(i => i.id === cartItemId);
-    if (item) {
-      item.quantity = newQuantity;
-      saveLocalCart(items);
-      setCartItems([...items]);
+    
+    try {
+      await cartApi.updateCartItem(cartItemId, newQuantity);
+      await fetchCart();
+    } catch (error) {
+      console.error('Failed to update cart item:', error.message);
+      showToast('Failed to update quantity', 'error');
     }
   };
 
-  // ─── Remove from cart ────────────────────────────────────
   const removeFromCart = async (cartItemId) => {
-    if (backendAvailable.current === true) {
-      try {
-        await cartApi.removeFromCart(cartItemId);
-        await fetchCart();
-        return;
-      } catch (error) {
-        console.error('Failed to remove from cart:', error.message);
-      }
+    if (requireLogin()) return;
+    
+    try {
+      await cartApi.removeFromCart(cartItemId);
+      await fetchCart();
+      showToast('Item removed from cart', 'info');
+    } catch (error) {
+      console.error('Failed to remove from cart:', error.message);
+      showToast('Failed to remove item', 'error');
     }
-    // localStorage fallback
-    const items = loadLocalCart().filter(i => i.id !== cartItemId);
-    saveLocalCart(items);
-    setCartItems(items);
   };
 
-  // ─── Clear cart ──────────────────────────────────────────
   const clearCart = async () => {
-    if (backendAvailable.current === true) {
-      try {
-        await cartApi.clearCart();
-      } catch (error) {
-        console.error('Failed to clear cart:', error.message);
-      }
+    if (requireLogin()) return;
+    
+    try {
+      await cartApi.clearCart();
+      setCartItems([]);
+    } catch (error) {
+      console.error('Failed to clear cart:', error.message);
     }
-    saveLocalCart([]);
-    setCartItems([]);
   };
 
-  // ─── Computed totals ─────────────────────────────────────
   const getCartTotal = () => {
     return cartItems.reduce((sum, item) => {
       const p = item.product || {};
@@ -170,8 +131,7 @@ export const CartProvider = ({ children }) => {
       getCartOriginalTotal,
       getCartCount,
       fetchCart,
-      loading,
-      backendAvailable,
+      loading
     }}>
       {children}
     </CartContext.Provider>
