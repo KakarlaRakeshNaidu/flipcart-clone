@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ChevronLeft, Loader2 } from 'lucide-react';
+import { Search, ChevronLeft } from 'lucide-react';
 import OrderSidebar from '../components/Orders/OrderSidebar';
 import OrderCard from '../components/Orders/OrderCard';
 import { orderApi } from '../services/api';
@@ -21,7 +21,7 @@ const MyOrders = () => {
       } catch (error) {
         console.warn('Backend orders unavailable, using local orders:', error.message);
       }
-      
+
       // Also load localStorage orders (placed when backend was down)
       let localOrders = [];
       try {
@@ -41,21 +41,21 @@ const MyOrders = () => {
   const filteredOrders = orders.filter(order => {
     const item = order.orderItems?.[0]?.product;
     if (!item) return false;
-    
+
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
     const status = (order.status || '').toLowerCase();
-    
+
     let matchesFilter = true;
     if (filter === 'Delivered') matchesFilter = status === 'delivered';
     else if (filter === 'Cancelled') matchesFilter = status === 'cancelled';
     else if (filter === 'Open') matchesFilter = ['placed', 'confirmed', 'shipped', 'out_for_delivery'].includes(status);
-    
+
     return matchesSearch && matchesFilter;
   });
 
   return (
     <div className="bg-[#f1f3f6] min-h-[calc(100vh-100px)] md:py-8">
-      
+
       {/* Mobile Back Nav */}
       <div className="md:hidden flex items-center bg-[#2874f0] text-white p-4 sticky top-0 z-50">
         <button onClick={() => navigate(-1)} className="mr-4">
@@ -65,13 +65,13 @@ const MyOrders = () => {
       </div>
 
       <div className="container mx-auto max-w-[1248px] px-2 md:px-4 flex flex-col md:flex-row gap-4 relative">
-        
+
         {/* Sidebar */}
         <OrderSidebar />
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col gap-4">
-          
+
           {/* Breadcrumb - Desktop Only */}
           <div className="hidden md:flex text-[12px] text-[#878787] gap-2 items-center mb-2">
             <Link to="/" className="hover:text-[#2874f0]">Home</Link>
@@ -83,12 +83,12 @@ const MyOrders = () => {
 
           {/* Search & Filters */}
           <div className="bg-white rounded-sm shadow-[0_2px_4px_0_rgba(0,0,0,0.08)] p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-            
+
             {/* Search Bar */}
             <div className="w-full md:w-1/2 relative">
-              <input 
-                type="text" 
-                placeholder="Search your orders here" 
+              <input
+                type="text"
+                placeholder="Search your orders here"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full border border-[#e0e0e0] rounded-sm py-2 px-4 outline-none focus:border-[#2874f0] text-[14px]"
@@ -102,7 +102,7 @@ const MyOrders = () => {
             {/* Filter Tabs - Desktop Only */}
             <div className="hidden md:flex items-center gap-6 text-[14px] font-medium">
               {['All', 'Open', 'Delivered', 'Cancelled'].map(f => (
-                <button 
+                <button
                   key={f}
                   onClick={() => setFilter(f)}
                   className={`${filter === f ? 'text-[#2874f0] border-b-2 border-[#2874f0] pb-1' : 'text-[#212121] hover:text-[#2874f0] pb-1 border-b-2 border-transparent'}`}
@@ -115,10 +115,7 @@ const MyOrders = () => {
 
           {/* Orders List */}
           {loading ? (
-            <div className="bg-white p-12 flex flex-col items-center justify-center text-center rounded-sm shadow-[0_2px_4px_0_rgba(0,0,0,0.08)]">
-              <Loader2 className="animate-spin text-[#2874f0] mb-4" size={40} />
-              <div className="text-[#878787]">Loading your orders...</div>
-            </div>
+            <div className="bg-white p-8 text-center text-[#878787]">Loading your orders...</div>
           ) : filteredOrders.length > 0 ? (
             <div className="flex flex-col gap-4">
               {filteredOrders.map(order => (

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { Loader2 } from 'lucide-react';
 
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, getCartTotal, getCartOriginalTotal, getCartCount, loading } = useCart();
@@ -14,8 +13,7 @@ const Cart = () => {
 
   if (loading) {
     return (
-      <div className="bg-[#F1F3F6] min-h-screen py-8 flex flex-col items-center justify-center">
-        <Loader2 className="animate-spin text-[#2874f0] mb-4" size={40} />
+      <div className="bg-[#F1F3F6] min-h-screen py-8 flex items-center justify-center">
         <div className="text-[18px] text-[#878787]">Loading your cart...</div>
       </div>
     );
@@ -24,13 +22,13 @@ const Cart = () => {
   return (
     <div className="bg-[#F1F3F6] min-h-screen py-8">
       <div className="container mx-auto max-w-[1248px] px-2 flex flex-col lg:flex-row gap-4 relative">
-        
+
         {/* LEFT 70% - Items */}
         <div className="w-full lg:w-[70%] flex flex-col gap-4">
           <div className="bg-white shadow-sm p-4 text-[18px] font-medium border-b border-[#f0f0f0]">
             My Cart ({getCartCount()} {getCartCount() === 1 ? 'item' : 'items'})
           </div>
-          
+
           {cartItems.length > 0 ? (
             <div className="bg-white shadow-sm flex flex-col">
               {cartItems.map((item, index) => {
@@ -48,18 +46,18 @@ const Cart = () => {
                       <div className="w-[112px] h-[112px] flex-shrink-0 flex items-center justify-center">
                         <img src={imageUrl} alt={product.name} className="max-w-full max-h-full object-contain" />
                       </div>
-                      
+
                       <div className="flex-1 flex flex-col">
                         <Link to={`/product/${productId}`} className="text-[16px] text-[#212121] hover:text-[#2874F0] mb-1">
                           {product.name}
                         </Link>
-                        
+
                         <div className="text-[14px] text-[#878787] mb-4">
                           {product.brand && <span>{product.brand}</span>}
                           {item.selectedColor && <span> • {item.selectedColor}</span>}
                           {item.selectedVariant && <span> • {item.selectedVariant}</span>}
                         </div>
-                        
+
                         <div className="flex items-center gap-3 mb-6">
                           {itemMrp > itemPrice && (
                             <span className="text-[14px] text-[#878787] line-through">₹{formatPrice(itemMrp)}</span>
@@ -73,7 +71,7 @@ const Cart = () => {
                         <div className="flex items-center gap-6 mt-auto">
                           <div className="flex items-center gap-2">
                             <div className="flex items-center gap-3">
-                              <button 
+                              <button
                                 className={`w-7 h-7 rounded-full border ${item.quantity <= 1 ? 'border-[#e0e0e0] text-[#c2c2c2] cursor-not-allowed' : 'border-[#c2c2c2] text-[#212121] hover:bg-gray-50'}`}
                                 onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                 disabled={item.quantity <= 1}
@@ -83,7 +81,7 @@ const Cart = () => {
                               <div className="w-[46px] h-7 border border-[#c2c2c2] flex items-center justify-center text-[14px] font-medium">
                                 {item.quantity}
                               </div>
-                              <button 
+                              <button
                                 className="w-7 h-7 rounded-full border border-[#c2c2c2] text-[#212121] hover:bg-gray-50 flex items-center justify-center"
                                 onClick={() => updateQuantity(item.id, item.quantity + 1)}
                               >
@@ -91,7 +89,7 @@ const Cart = () => {
                               </button>
                             </div>
                           </div>
-                          <button 
+                          <button
                             className="text-[16px] font-medium text-[#212121] hover:text-[#2874F0] uppercase"
                             onClick={() => removeFromCart(item.id)}
                           >
@@ -103,9 +101,9 @@ const Cart = () => {
                   </div>
                 );
               })}
-              
+
               <div className="p-4 flex justify-end sticky bottom-0 bg-white shadow-[0_-2px_10px_0_rgba(0,0,0,0.1)] z-10">
-                <button 
+                <button
                   className="bg-[#fb641b] text-white font-medium text-[16px] py-4 px-12 rounded-sm shadow-sm"
                   onClick={() => navigate('/checkout')}
                 >
@@ -116,7 +114,7 @@ const Cart = () => {
           ) : (
             <div className="bg-white shadow-sm p-8 flex flex-col items-center justify-center min-h-[400px]">
               <div className="text-[18px] text-[#212121] mb-4">Your cart is empty!</div>
-              <button 
+              <button
                 className="bg-[#2874F0] text-white px-10 py-3 rounded-sm font-medium"
                 onClick={() => navigate('/')}
               >
@@ -146,12 +144,12 @@ const Cart = () => {
                   <span className="text-[#212121]">Delivery Charges</span>
                   <span className="text-[#388E3C]">Free</span>
                 </div>
-                
+
                 <div className="flex justify-between py-4 border-y border-[#dashed] text-[18px] font-bold text-[#212121] mb-4">
                   <span>Total Amount</span>
                   <span>₹{formatPrice(total)}</span>
                 </div>
-                
+
                 <div className="text-[16px] font-medium text-[#388E3C]">
                   You will save ₹{formatPrice(discount)} on this order
                 </div>

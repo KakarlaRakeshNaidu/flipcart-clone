@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Download, MapPin, Phone, HelpCircle, Star, XCircle, RefreshCcw, Loader2 } from 'lucide-react';
+import { ChevronLeft, Download, MapPin, Phone, HelpCircle, Star, XCircle, RefreshCcw } from 'lucide-react';
 import StatusStepper from '../components/Orders/StatusStepper';
 import { orderApi } from '../services/api';
 
@@ -36,25 +36,20 @@ const OrderDetail = () => {
     fetchOrder();
   }, [orderId]);
 
-  if (loading) return (
-    <div className="min-h-screen bg-[#f1f3f6] flex flex-col items-center justify-center">
-      <Loader2 className="animate-spin text-[#2874f0] mb-4" size={40} />
-      <div className="text-[#878787] font-medium">Loading order details...</div>
-    </div>
-  );
+  if (loading) return <div className="min-h-screen bg-[#f1f3f6] flex items-center justify-center">Loading order details...</div>;
   if (error || !order) return <div className="min-h-screen bg-[#f1f3f6] flex items-center justify-center text-red-500">Order not found</div>;
 
   const item = order.orderItems?.[0]?.product;
   const status = (order.status || '').toLowerCase();
   const isCancelled = status === 'cancelled';
   const isDelivered = status === 'delivered';
-  
+
   // Try to parse shipping address if it's a string, or use directly if it's an object
   let address = order.shippingAddress;
   if (typeof address === 'string') {
     try {
       address = JSON.parse(address);
-    } catch(e) {
+    } catch (e) {
       // Fallback if not JSON
       address = { name: 'Customer', addressLine1: address, city: '', state: '', pin: '', phone: '' };
     }
@@ -62,7 +57,7 @@ const OrderDetail = () => {
 
   return (
     <div className="bg-[#f1f3f6] min-h-[calc(100vh-100px)] md:py-8">
-      
+
       {/* Mobile Back Nav */}
       <div className="md:hidden flex items-center justify-between bg-[#2874f0] text-white p-4 sticky top-0 z-50">
         <div className="flex items-center">
@@ -74,7 +69,7 @@ const OrderDetail = () => {
       </div>
 
       <div className="container mx-auto max-w-[1248px] px-2 md:px-4 flex flex-col gap-4">
-        
+
         {/* Breadcrumb */}
         <div className="hidden md:flex text-[12px] text-[#878787] gap-2 items-center">
           <Link to="/" className="hover:text-[#2874f0]">Home</Link>
@@ -88,7 +83,7 @@ const OrderDetail = () => {
 
         {/* Delivery Address & Invoice Row */}
         <div className="bg-white rounded-sm shadow-[0_2px_4px_0_rgba(0,0,0,0.08)] p-6 flex flex-col md:flex-row justify-between gap-6 border border-[#e0e0e0]">
-          
+
           <div className="flex-1 border-b md:border-b-0 md:border-r border-[#f0f0f0] pb-6 md:pb-0 md:pr-6">
             <h2 className="text-[16px] font-medium text-[#212121] mb-4">Delivery Address</h2>
             <div className="text-[14px] text-[#212121] font-medium mb-1">{address.name}</div>
@@ -112,7 +107,7 @@ const OrderDetail = () => {
               </div>
             </div>
             <div className="mt-4 md:mt-0">
-              <button 
+              <button
                 onClick={() => alert('Invoice download coming soon')}
                 className="flex items-center gap-2 text-[#2874f0] border border-[#e0e0e0] rounded-sm px-6 py-2 font-medium hover:shadow-sm"
               >
@@ -125,7 +120,7 @@ const OrderDetail = () => {
 
         {/* Main Content (Tracker & Summary) */}
         <div className="bg-white rounded-sm shadow-[0_2px_4px_0_rgba(0,0,0,0.08)] flex flex-col md:flex-row border border-[#e0e0e0]">
-          
+
           {/* Left Column: Product Summary */}
           <div className="flex-1 p-6 border-b md:border-b-0 md:border-r border-[#f0f0f0]">
             <div className="flex gap-6 mb-8">
@@ -174,16 +169,16 @@ const OrderDetail = () => {
           <div className="w-full md:w-[40%] p-6 bg-[#fcfcfc]">
             <h2 className="text-[16px] font-medium text-[#212121] mb-6">Order Status</h2>
             <div className="pl-2">
-              <StatusStepper 
+              <StatusStepper
                 steps={order.tracking?.steps || [
                   { label: 'Ordered', date: order.createdAt, completed: true },
                   { label: 'Packed', date: null, completed: status === 'shipped' || status === 'delivered' },
                   { label: 'Shipped', date: null, completed: status === 'shipped' || status === 'delivered' },
                   { label: 'Delivery', date: null, completed: status === 'delivered' }
-                ]} 
-                currentStatus={status} 
+                ]}
+                currentStatus={status}
                 isCancelled={isCancelled}
-                orientation="vertical" 
+                orientation="vertical"
               />
             </div>
           </div>
